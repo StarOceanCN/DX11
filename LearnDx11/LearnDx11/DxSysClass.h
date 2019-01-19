@@ -4,12 +4,10 @@
 //减少api的使用使win32的头文件变小，加快构建过程
 #define WIN32_LEAN_AND_MEAN
 #include<Windows.h>
-#include<string>
 
 #include "DxInputClass.h"
 #include "DxGraphicsClass.h"
 
-using std::string;
 class DxSysClass
 {
 public:
@@ -32,7 +30,7 @@ public:
 	*/
 private:
 	bool Frame();
-	void WindowsInit(int screenWidth, int screenHeight);
+	void WindowsInit(int& screenWidth, int& screenHeight);
 	void WindowsShutDown();
 
 private:
@@ -44,7 +42,7 @@ private:
 	*/
 	LPCWSTR m_windowsName;
 	HINSTANCE m_instance;
-	HWND m_hwnd;
+	HWND m_hwnd;// The hwnd variable is a handle to the window
 
 	DxInputClass* m_input;
 	DxGraphicsClass* m_graph;

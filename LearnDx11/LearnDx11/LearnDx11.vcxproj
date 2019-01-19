@@ -154,12 +154,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Dx3dClass.h" />
     <ClInclude Include="DxGraphicsClass.h" />
     <ClInclude Include="DxInputClass.h" />
     <ClInclude Include="DxSysClass.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dx3dClass.cpp" />
     <ClCompile Include="DxGraphicsClass.cpp" />
     <ClCompile Include="DxInputClass.cpp" />
     <ClCompile Include="DxSysClass.cpp" />

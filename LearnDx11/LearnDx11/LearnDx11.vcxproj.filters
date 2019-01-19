@@ -27,6 +27,9 @@
     <ClInclude Include="DxGraphicsClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Dx3dClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -42,6 +45,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DxGraphicsClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Dx3dClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

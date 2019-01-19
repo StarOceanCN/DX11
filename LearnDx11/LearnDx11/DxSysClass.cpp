@@ -97,7 +97,7 @@ LRESULT CALLBACK DxSysClass::MessageHandler(HWND hwnd, UINT msg, WPARAM wparam, 
 	}
 }
 
-void DxSysClass::WindowsInit(int screenWidth, int screenHeight) {
+void DxSysClass::WindowsInit(int& screenWidth, int& screenHeight) {
 	WNDCLASSEX win;
 	DEVMODE dmScreenSettings;
 	int posX, posY;

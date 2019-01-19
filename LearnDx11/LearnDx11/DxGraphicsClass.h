@@ -1,9 +1,9 @@
 #ifndef DXGRAPHICSCLASS_H
 #define DXGRAPHICSCLASS_H
 
-#include<Windows.h>
+#include"Dx3dClass.h"
 
-const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -20,6 +20,9 @@ public:
 
 private:
 	bool Render();
+
+private:
+	Dx3dClass* m_dx3dcls;
 };
 
 
