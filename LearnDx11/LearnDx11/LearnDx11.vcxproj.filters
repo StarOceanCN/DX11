@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{9f87fe1e-11c9-49c8-910d-d15592a2b76e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -28,6 +31,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Dx3dClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DxModelClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DxShaderClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DxCameraClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,5 +62,22 @@
     <ClCompile Include="Dx3dClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="DxModelClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxShaderClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxCameraClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Color.ps">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Color.vs">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

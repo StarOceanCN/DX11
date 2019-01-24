@@ -2,6 +2,9 @@
 #define DXGRAPHICSCLASS_H
 
 #include"Dx3dClass.h"
+#include"DxCameraClass.h"
+#include"DxModelClass.h"
+#include"DxShaderClass.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -23,6 +26,9 @@ private:
 
 private:
 	Dx3dClass* m_dx3dcls;
+	DxCameraClass* m_camera;
+	DxModelClass* m_model;
+	DxShaderClass* m_shader;
 };
 
 

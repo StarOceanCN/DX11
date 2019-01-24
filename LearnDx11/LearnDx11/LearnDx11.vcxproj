@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -155,15 +155,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Dx3dClass.h" />
+    <ClInclude Include="DxCameraClass.h" />
     <ClInclude Include="DxGraphicsClass.h" />
     <ClInclude Include="DxInputClass.h" />
+    <ClInclude Include="DxModelClass.h" />
+    <ClInclude Include="DxShaderClass.h" />
     <ClInclude Include="DxSysClass.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dx3dClass.cpp" />
+    <ClCompile Include="DxCameraClass.cpp" />
     <ClCompile Include="DxGraphicsClass.cpp" />
     <ClCompile Include="DxInputClass.cpp" />
+    <ClCompile Include="DxModelClass.cpp" />
+    <ClCompile Include="DxShaderClass.cpp" />
     <ClCompile Include="DxSysClass.cpp" />
     <ClCompile Include="LearnDx11.cpp" />
     <ClCompile Include="pch.cpp">
@@ -172,6 +178,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Color.ps" />
+    <None Include="Color.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

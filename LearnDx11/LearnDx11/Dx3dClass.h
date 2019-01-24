@@ -1,15 +1,22 @@
 #ifndef DX3DCLASS_H
 #define DX3DCLASS_H
 
+#pragma comment(lib, "d3dx11.lib")
+#pragma comment(lib, "d3dx10.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
-#include <Windows.h>
+//#pragma comment(lib, "d3dcompiler.lib")
+#include <DXGI.h>
+#include <D3Dcommon.h>
 #include <D3D11.h>
-#include <DirectXMath.h>
-#include <stdlib.h>
-using namespace DirectX;
+//#include <Windows.h>
+//#include <D3D11.h>
+//#include <DirectXMath.h>
+#include <D3DX10math.h>
+
+//#include <stdlib.h>
+//using namespace DirectX;
 
 const float PI = 3.141592654f;
 
@@ -29,9 +36,9 @@ public:
 	ID3D11Device* GetDevice();//设备
 	ID3D11DeviceContext* GetDeviceContext();//渲染上下文
 
-	void GetProjectionMatrix(XMMATRIX& proMatrix);
-	void GetWorldMatrix(XMMATRIX& worldMatrix);
-	void GetOrthoMatrix(XMMATRIX& orthoMatrix);
+	void GetProjectionMatrix(D3DXMATRIX& proMatrix);
+	void GetWorldMatrix(D3DXMATRIX& worldMatrix);
+	void GetOrthoMatrix(D3DXMATRIX& orthoMatrix);
 
 	void GetVideoCardInfo(char* name, int&);
 private:
@@ -48,9 +55,9 @@ private:
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_rasterState;
 
-	XMMATRIX m_projectionMatrix;
-	XMMATRIX m_worldMatrix;
-	XMMATRIX m_orthoMatrix;
+	D3DXMATRIX m_projectionMatrix;
+	D3DXMATRIX m_worldMatrix;
+	D3DXMATRIX m_orthoMatrix;
 };
 
 #endif// DX3DCLASS_H
