@@ -10,15 +10,23 @@ DxModelClass::DxModelClass(const DxModelClass& other) {
 
 DxModelClass::~DxModelClass() {}
 
-bool DxModelClass::Init(ID3D11Device* device) {
+bool DxModelClass::Init(ID3D11Device* device, const WCHAR* fileName) {
 	bool isSuccess;
 	isSuccess = BufferInit(device);
-	if (FAILED(isSuccess))
+	if (!isSuccess)
 		return false;
+
+	isSuccess = LoadTexture(device, fileName);
+	if (!isSuccess) {
+		return false;
+	}
+
 	return true;
 }
 
 void DxModelClass::ShutDown() {
+	ReleaseTexture();
+
 	BufferShutDown();
 }
 
@@ -29,6 +37,10 @@ void DxModelClass::Render(ID3D11DeviceContext* deviceContext) {
 
 int DxModelClass::GetIndexCount() {
 	return m_indexCount;
+}
+
+ID3D11ShaderResourceView* DxModelClass::GetTexture() {
+	return m_texture->GetTexture();
 }
 
 bool DxModelClass::BufferInit(ID3D11Device* device) {
@@ -54,13 +66,13 @@ bool DxModelClass::BufferInit(ID3D11Device* device) {
 		return false;
 
 	vertices[0].position = D3DXVECTOR3(-1.0f, -1.0f, 0.0f);//bottom left
-	vertices[0].color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+	vertices[0].texture = D3DXVECTOR2(0.0f, 1.0f);
 
 	vertices[1].position = D3DXVECTOR3(0.0f, 1.0f, 0.0f);//top middle
-	vertices[1].color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+	vertices[1].texture = D3DXVECTOR2(0.5f, 0.0f);
 
 	vertices[2].position = D3DXVECTOR3(1.0f, -1.0f, 0.0f);//bottom right
-	vertices[2].color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+	vertices[2].texture = D3DXVECTOR2(1.0f, 1.0f);
 
 	indices[0] = 0;
 	indices[1] = 1;
@@ -108,6 +120,28 @@ bool DxModelClass::BufferInit(ID3D11Device* device) {
 	indices = 0;
 
 	return true;
+}
+
+bool DxModelClass::LoadTexture(ID3D11Device* device, const WCHAR* fileName) {
+	bool isSuccess;
+	m_texture = new DxTextureClass();
+	if (!m_texture) {
+		return false;
+	}
+
+	isSuccess = m_texture->Init(device, fileName);
+	if (!isSuccess) {
+		return false;
+	}
+
+	return true;
+}
+
+void DxModelClass::ReleaseTexture() {
+	if (m_texture) {
+		m_texture->ShutDown();
+		m_texture = 0;
+	}
 }
 
 void DxModelClass::BufferShutDown() {

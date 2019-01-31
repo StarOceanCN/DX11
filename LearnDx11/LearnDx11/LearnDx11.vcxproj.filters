@@ -42,6 +42,9 @@
     <ClInclude Include="DxCameraClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DxTextureClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -71,12 +74,21 @@
     <ClCompile Include="DxCameraClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="DxTextureClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">
       <Filter>Shader</Filter>
     </None>
     <None Include="Color.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Texture.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Texture.ps">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

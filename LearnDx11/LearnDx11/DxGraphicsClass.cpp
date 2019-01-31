@@ -31,7 +31,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	if (!m_model)
 		return false;
 
-	isSuccess = m_model->Init(m_dx3dcls->GetDevice());
+	isSuccess = m_model->Init(m_dx3dcls->GetDevice(), L"../LearnDx11/Texture/seafloor.gif");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
@@ -41,7 +41,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
-	isSuccess = m_shader->Init(m_dx3dcls->GetDevice(), hwnd);
+	isSuccess = m_shader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Texture.vs", L"../LearnDx11/Texture.ps");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
@@ -98,7 +98,7 @@ bool DxGraphicsClass::Render() {
 
 	m_model->Render(m_dx3dcls->GetDeviceContext());
 
-	isSuccess = m_shader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	isSuccess = m_shader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture());
 	if (!isSuccess)
 		return false;
 
