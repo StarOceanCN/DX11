@@ -23,7 +23,7 @@ public:
 	bool Frame();
 
 private:
-	bool Render(float rotation);
+	bool Render(float rotation, float move);
 
 private:
 	Dx3dClass* m_dx3dcls;

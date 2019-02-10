@@ -32,7 +32,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	if (!m_model)
 		return false;
 
-	isSuccess = m_model->Init(m_dx3dcls->GetDevice(), L"../LearnDx11/Texture/seafloor.gif");
+	isSuccess = m_model->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt",L"../LearnDx11/Texture/seafloor.gif");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
@@ -92,19 +92,22 @@ void DxGraphicsClass::ShutDown() {
 
 bool DxGraphicsClass::Frame() {
 	static float rotation = 0.0f;
+	static float move = 0.0f;
 
 	rotation += (float)D3DX_PI*0.01f;
+	move += 0.1f;
+
 	if (rotation > 360.0f) {
 		rotation -= 360.0f;
 	}
 
-	bool isSuccess = Render(rotation);
+	bool isSuccess = Render(rotation, move);
 	if (!isSuccess)
 		return false;
 	return true;
 }
 
-bool DxGraphicsClass::Render(float rotation) {
+bool DxGraphicsClass::Render(float rotation, float move) {
 
 	D3DXMATRIX viewMatrix, worldMatrix, projectionMatrix;
 	bool isSuccess;
@@ -117,6 +120,7 @@ bool DxGraphicsClass::Render(float rotation) {
 	m_dx3dcls->GetWorldMatrix(worldMatrix);
 	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
 
+	D3DXMatrixTranslation(&worldMatrix, 0.0f, 0.0f, move);
 	D3DXMatrixRotationY(&worldMatrix, rotation);
 
 	m_model->Render(m_dx3dcls->GetDeviceContext());
