@@ -41,6 +41,9 @@ public:
 	void GetOrthoMatrix(D3DXMATRIX& orthoMatrix);
 
 	void GetVideoCardInfo(char* name, int&);
+
+	void ZBufferTurnOn();
+	void ZBufferTurnOff();
 private:
 	bool m_vsync_enabled;
 	int m_videoCardMemory;
@@ -54,6 +57,7 @@ private:
 	ID3D11DepthStencilState* m_depthStencilState;
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_rasterState;
+	ID3D11DepthStencilState* m_depthDisabledStencilState;
 
 	D3DXMATRIX m_projectionMatrix;
 	D3DXMATRIX m_worldMatrix;

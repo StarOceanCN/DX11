@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Dx2DRenderClass.h" />
     <ClInclude Include="Dx3dClass.h" />
     <ClInclude Include="DxCameraClass.h" />
     <ClInclude Include="DxGraphicsClass.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dx2DRenderClass.cpp" />
     <ClCompile Include="Dx3dClass.cpp" />
     <ClCompile Include="DxCameraClass.cpp" />
     <ClCompile Include="DxGraphicsClass.cpp" />

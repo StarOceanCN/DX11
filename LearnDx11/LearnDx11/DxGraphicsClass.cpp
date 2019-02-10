@@ -4,8 +4,10 @@ DxGraphicsClass::DxGraphicsClass() {
 	m_dx3dcls = 0;
 	m_camera = 0;
 	m_model = 0;
-	m_shader = 0;
+	m_ModelShader = 0;
+	m_2dShader = 0;
 	m_light = 0;
+	m_bitmap = 0;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
@@ -37,12 +39,21 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-	m_shader = new DxShaderClass();
-	if (!m_shader) {
+	m_ModelShader = new DxShaderClass();
+	if (!m_ModelShader) {
+		return false;
+	}
+	isSuccess = m_ModelShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Light.vs", L"../LearnDx11/Light.ps");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
 	}
 
-	isSuccess = m_shader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Light.vs", L"../LearnDx11/Light.ps");
+	m_2dShader = new DxTextureShaderClass();
+	if (!m_2dShader) {
+		return false;
+	}
+	isSuccess = m_2dShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Texture.vs", L"../LearnDx11/Texture.ps");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
@@ -52,18 +63,44 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	if (!m_light) {
 		return false;
 	}
-
 	m_light->SetDiffuseColor(1.0f, 0.0f, 0.0f, 1.0f);
 	m_light->SetDirection(0.0f, 0.0f, 1.0f);
+
+	m_bitmap = new Dx2DRenderClass;
+	if (!m_bitmap)
+	{
+		return false;
+	}
+
+	isSuccess = m_bitmap->Init(m_dx3dcls->GetDevice(), screenWidth, screenHeight, L"../LearnDx11/Texture/seafloor.gif", 256, 256);
+	if (!isSuccess)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
 
 	return true;
 }
 
 void DxGraphicsClass::ShutDown() {
-	if (m_shader) {
-		m_shader->ShutDown();
-		delete m_shader;
-		m_shader = 0;
+	if (m_ModelShader) {
+		m_ModelShader->ShutDown();
+		delete m_ModelShader;
+		m_ModelShader = 0;
+	}
+
+	if (m_2dShader) {
+		m_2dShader->ShutDown();
+		delete m_2dShader;
+		m_2dShader = 0;
+	}
+
+	if (m_bitmap)
+	{
+		m_bitmap->Shutdown();
+		delete m_bitmap;
+		m_bitmap = 0;
 	}
 
 	if (m_light) {
@@ -110,6 +147,8 @@ bool DxGraphicsClass::Frame() {
 bool DxGraphicsClass::Render(float rotation, float move) {
 
 	D3DXMATRIX viewMatrix, worldMatrix, projectionMatrix;
+	D3DXMATRIX orthoMatrix;
+
 	bool isSuccess;
 
 	m_dx3dcls->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -118,14 +157,40 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 
 	m_camera->GetViewMatrix(viewMatrix);
 	m_dx3dcls->GetWorldMatrix(worldMatrix);
+	m_dx3dcls->GetOrthoMatrix(orthoMatrix);
+
+	// Turn off the Z buffer to begin all 2D rendering.
+	m_dx3dcls->ZBufferTurnOff();
+
+	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	isSuccess = m_bitmap->Render(m_dx3dcls->GetDeviceContext(), 0, 0);
+	if (!isSuccess)
+	{
+		return false;
+	}
+
+	// Render the bitmap with the texture shader.
+	isSuccess = m_2dShader->Render(m_dx3dcls->GetDeviceContext(), m_bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_bitmap->GetTexture());
+	if (!isSuccess)
+	{
+		return false;
+	}
+
+	m_dx3dcls->ZBufferTurnOn();
+
+
 	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
 
-	D3DXMatrixTranslation(&worldMatrix, 0.0f, 0.0f, move);
-	D3DXMatrixRotationY(&worldMatrix, rotation);
+	D3DXMATRIX transformMatrix;
+	D3DXMatrixRotationY(&transformMatrix, rotation);
+	worldMatrix *= transformMatrix;
+	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, move);
+	worldMatrix *= transformMatrix;
+	
 
 	m_model->Render(m_dx3dcls->GetDeviceContext());
 
-	isSuccess = m_shader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), 
+	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor());
 
 	if (!isSuccess)

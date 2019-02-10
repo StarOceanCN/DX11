@@ -48,6 +48,9 @@
     <ClInclude Include="DxLightClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Dx2DRenderClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -81,6 +84,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DxLightClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Dx2DRenderClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
