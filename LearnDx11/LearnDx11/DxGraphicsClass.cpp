@@ -8,6 +8,7 @@ DxGraphicsClass::DxGraphicsClass() {
 	m_2dShader = 0;
 	m_light = 0;
 	m_bitmap = 0;
+	m_floor = 0;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
@@ -28,7 +29,18 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	m_camera = new DxCameraClass();
 	if (!m_camera)
 		return false;
-	m_camera->SetPosition(0.0f, 0.0f, -10.0f);
+	m_camera->SetPosition(0.0f, 10.0f, -10.0f);
+	m_camera->SetRotation(45.0f, 0.0f, 0.0f);
+
+	m_floor = new DxModelClass();
+	if (!m_floor) {
+		return false;
+	}
+	isSuccess = m_floor->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Floor.txt", L"../LearnDx11/Texture/rock.jpg");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
+		return false;
+	}
 
 	m_model = new DxModelClass();
 	if (!m_model)
@@ -48,6 +60,13 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
 	}
+	m_light = new DxLightClass();
+	if (!m_light) {
+		return false;
+	}
+	m_light->SetDiffuseColor(1.0f,1.0f, 1.0f, 1.0f);
+	m_light->SetDirection(-1.0f, -1.0f, 1.0f);
+
 
 	m_2dShader = new DxTextureShaderClass();
 	if (!m_2dShader) {
@@ -58,15 +77,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
 	}
-
-	m_light = new DxLightClass();
-	if (!m_light) {
-		return false;
-	}
-	m_light->SetDiffuseColor(1.0f, 0.0f, 0.0f, 1.0f);
-	m_light->SetDirection(0.0f, 0.0f, 1.0f);
-
-	m_bitmap = new Dx2DRenderClass;
+	m_bitmap = new Dx2DRenderClass();
 	if (!m_bitmap)
 	{
 		return false;
@@ -113,6 +124,11 @@ void DxGraphicsClass::ShutDown() {
 		delete m_model;
 		m_model = 0;
 	}
+	if (m_floor) {
+		m_floor->ShutDown();
+		delete m_floor;
+		m_floor = 0;
+	}
 
 	if (m_camera) {
 		delete m_camera;
@@ -148,6 +164,7 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 
 	D3DXMATRIX viewMatrix, worldMatrix, projectionMatrix;
 	D3DXMATRIX orthoMatrix;
+	D3DXMATRIX transformMatrix;
 
 	bool isSuccess;
 
@@ -180,14 +197,30 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 
 
 	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
+	D3DXMATRIX floorWorldMatrix;
+	floorWorldMatrix = worldMatrix;
+	//缩放地板
+	D3DXMatrixScaling(&transformMatrix, 5.0f, 1.0f, 5.0f);
+	floorWorldMatrix *= transformMatrix;
+	//旋转
+	//D3DXMatrixRotationX(&transformMatrix, PI/2);
+	//floorWorldMatrix *= transformMatrix;
+	//平移
+	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
+	floorWorldMatrix *= transformMatrix;
+	m_floor->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(),
+		floorWorldMatrix, viewMatrix, projectionMatrix, m_floor->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor());
 
-	D3DXMATRIX transformMatrix;
+	if (!isSuccess)
+		return false;
+
 	D3DXMatrixRotationY(&transformMatrix, rotation);
 	worldMatrix *= transformMatrix;
-	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, move);
+	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
 	worldMatrix *= transformMatrix;
 	
-
+	/*
 	m_model->Render(m_dx3dcls->GetDeviceContext());
 
 	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), 
@@ -195,7 +228,7 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 
 	if (!isSuccess)
 		return false;
-
+	*/
 	m_dx3dcls->EndScene();
 
 	return true;

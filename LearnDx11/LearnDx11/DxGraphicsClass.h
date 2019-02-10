@@ -30,7 +30,7 @@ private:
 private:
 	Dx3dClass* m_dx3dcls;
 	DxCameraClass* m_camera;
-	DxModelClass* m_model;
+	DxModelClass* m_model, *m_floor;
 	DxShaderClass* m_ModelShader;
 	DxTextureShaderClass *m_2dShader;
 	DxLightClass* m_light;

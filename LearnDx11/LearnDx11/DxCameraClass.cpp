@@ -15,7 +15,7 @@ DxCameraClass::~DxCameraClass() {}
 
 void DxCameraClass::SetPosition(float x, float y, float z) {
 	m_positionX = x;
-	m_rotationY = y;
+	m_positionY = y;
 	m_positionZ = z;
 }
 
