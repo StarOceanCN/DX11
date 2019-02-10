@@ -5,6 +5,7 @@ DxGraphicsClass::DxGraphicsClass() {
 	m_camera = 0;
 	m_model = 0;
 	m_shader = 0;
+	m_light = 0;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
@@ -41,11 +42,19 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
-	isSuccess = m_shader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Texture.vs", L"../LearnDx11/Texture.ps");
+	isSuccess = m_shader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Light.vs", L"../LearnDx11/Light.ps");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
 	}
+
+	m_light = new DxLightClass();
+	if (!m_light) {
+		return false;
+	}
+
+	m_light->SetDiffuseColor(1.0f, 0.0f, 0.0f, 1.0f);
+	m_light->SetDirection(0.0f, 0.0f, 1.0f);
 
 	return true;
 }
@@ -55,6 +64,11 @@ void DxGraphicsClass::ShutDown() {
 		m_shader->ShutDown();
 		delete m_shader;
 		m_shader = 0;
+	}
+
+	if (m_light) {
+		delete m_light;
+		m_light = 0;
 	}
 
 	if (m_model) {
@@ -77,13 +91,20 @@ void DxGraphicsClass::ShutDown() {
 }
 
 bool DxGraphicsClass::Frame() {
-	bool isSuccess = Render();
+	static float rotation = 0.0f;
+
+	rotation += (float)D3DX_PI*0.01f;
+	if (rotation > 360.0f) {
+		rotation -= 360.0f;
+	}
+
+	bool isSuccess = Render(rotation);
 	if (!isSuccess)
 		return false;
 	return true;
 }
 
-bool DxGraphicsClass::Render() {
+bool DxGraphicsClass::Render(float rotation) {
 
 	D3DXMATRIX viewMatrix, worldMatrix, projectionMatrix;
 	bool isSuccess;
@@ -96,9 +117,13 @@ bool DxGraphicsClass::Render() {
 	m_dx3dcls->GetWorldMatrix(worldMatrix);
 	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
 
+	D3DXMatrixRotationY(&worldMatrix, rotation);
+
 	m_model->Render(m_dx3dcls->GetDeviceContext());
 
-	isSuccess = m_shader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture());
+	isSuccess = m_shader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), 
+		worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor());
+
 	if (!isSuccess)
 		return false;
 

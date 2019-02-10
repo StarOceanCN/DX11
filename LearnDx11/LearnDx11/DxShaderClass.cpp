@@ -6,6 +6,7 @@ DxShaderClass::DxShaderClass() {
 	m_layout = 0;
 	m_matrixBuffer = 0;
 	m_sampleState = 0;
+	m_lightBuffer = 0;
 }
 DxShaderClass::DxShaderClass(const DxShaderClass& other) {
 
@@ -25,11 +26,13 @@ void DxShaderClass::ShutDown() {
 	ShaderShutDown();
 }
 
-bool DxShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture) {
+bool DxShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
+	D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture,
+	D3DXVECTOR3 lightDirection, D3DXVECTOR4 diffuseColor) {
 	bool isSuccess;
 
 	//set the shader parameters
-	isSuccess = ShaderSetParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+	isSuccess = ShaderSetParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor);
 	if (!isSuccess)
 		return false;
 
@@ -48,10 +51,11 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
 	ID3D10Blob* pixelShaderBuffer;
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC sampleDesc;
+	D3D11_BUFFER_DESC lightBufferDesc;
 
 	// initialize the pointer this function will use to null
 	errorMessage = 0;
@@ -59,7 +63,7 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 	pixelShaderBuffer = 0;
 
 
-	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, "TextureVertexShader", "vs_5_0", 
+	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, "LightVertexShader", "vs_5_0", 
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &vertexShaderBuffer, &errorMessage, NULL);
 
 
@@ -73,7 +77,7 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 		return false;
 	}
 
-	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, "TexturePixelShader", "ps_5_0",
+	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, "LightPixelShader", "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &pixelShaderBuffer, &errorMessage, NULL);
 
 	if (FAILED(result)) {
@@ -108,11 +112,20 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 
 	polygonLayout[1].SemanticName = "TEXCOORD";
 	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
 	polygonLayout[1].InputSlot = 0;
 	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;//it will figure out the spacing for you
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
+
+	polygonLayout[2].SemanticName = "NORMAL";
+	polygonLayout[2].SemanticIndex = 0;
+	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[2].InputSlot = 0;
+	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;//it will figure out the spacing for you
+	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[2].InstanceDataStepRate = 0;
+
 
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
@@ -152,11 +165,23 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 	sampleDesc.BorderColor[0] = 0;
 	sampleDesc.BorderColor[1] = 0;
 	sampleDesc.BorderColor[2] = 0;
-	sampleDesc.BorderColor[2] = 0;
+	sampleDesc.BorderColor[3] = 0;
 	sampleDesc.MinLOD = 0;
 	sampleDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	result = device->CreateSamplerState(&sampleDesc, &m_sampleState);
+	if (FAILED(result)) {
+		return false;
+	}
+
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -166,6 +191,10 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 
 void DxShaderClass::ShaderShutDown(){
 
+	if (m_lightBuffer) {
+		m_lightBuffer->Release();
+		m_lightBuffer = 0;
+	}
 	if (m_sampleState) {
 		m_sampleState->Release();
 		m_sampleState = 0;
@@ -213,11 +242,12 @@ void DxShaderClass::ShaderOutputErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 }
 
 bool DxShaderClass::ShaderSetParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix,
-	D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture) {
+	D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR3 lightDirection, D3DXVECTOR4 diffuseColor) {
 
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
+	LightBufferType* dataPtr2;
 	unsigned int bufferNumber;
 
 	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
@@ -231,7 +261,7 @@ bool DxShaderClass::ShaderSetParameters(ID3D11DeviceContext* deviceContext, D3DX
 
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	dataPtr->wordMatrix = worldMatrix;
+	dataPtr->worldMatrix = worldMatrix;
 	dataPtr->viewMatrix = viewMatrix;
 	dataPtr->projectionMatrix = projectionMatrix;
 
@@ -244,6 +274,22 @@ bool DxShaderClass::ShaderSetParameters(ID3D11DeviceContext* deviceContext, D3DX
 	if (texture != NULL) {
 		deviceContext->PSSetShaderResources(0, 1, &texture);
 	}
+
+	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result)) {
+		return false;
+	}
+	dataPtr2 = (LightBufferType*)mappedResource.pData;
+
+	dataPtr2->diffuesColor = diffuseColor;
+	dataPtr2->lightDirection = lightDirection;
+	dataPtr2->padding = 0.0f;
+
+	deviceContext->Unmap(m_lightBuffer, 0);
+
+	bufferNumber = 0;
+
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
 	return true;
 }

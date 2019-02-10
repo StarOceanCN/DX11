@@ -158,6 +158,7 @@
     <ClInclude Include="DxCameraClass.h" />
     <ClInclude Include="DxGraphicsClass.h" />
     <ClInclude Include="DxInputClass.h" />
+    <ClInclude Include="DxLightClass.h" />
     <ClInclude Include="DxModelClass.h" />
     <ClInclude Include="DxShaderClass.h" />
     <ClInclude Include="DxSysClass.h" />
@@ -169,6 +170,7 @@
     <ClCompile Include="DxCameraClass.cpp" />
     <ClCompile Include="DxGraphicsClass.cpp" />
     <ClCompile Include="DxInputClass.cpp" />
+    <ClCompile Include="DxLightClass.cpp" />
     <ClCompile Include="DxModelClass.cpp" />
     <ClCompile Include="DxShaderClass.cpp" />
     <ClCompile Include="DxSysClass.cpp" />
@@ -184,6 +186,8 @@
   <ItemGroup>
     <None Include="Color.ps" />
     <None Include="Color.vs" />
+    <None Include="Light.ps" />
+    <None Include="Light.vs" />
     <None Include="Texture.ps" />
     <None Include="Texture.vs" />
   </ItemGroup>
