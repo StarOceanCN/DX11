@@ -17,19 +17,24 @@ void DxLightClass::SetDiffuseColor(float r, float g, float b, float a) {
 }
 
 
-void DxLightClass::SetDirection(float x, float y, float z)
-{
+void DxLightClass::SetDirection(float x, float y, float z){
 	m_direction = D3DXVECTOR3(x, y, z);
 }
 
 
-D3DXVECTOR4 DxLightClass::GetDiffuseColor()
-{
+D3DXVECTOR4 DxLightClass::GetDiffuseColor(){
 	return m_diffuseColor;
 }
 
 
-D3DXVECTOR3 DxLightClass::GetDirection()
-{
+D3DXVECTOR3 DxLightClass::GetDirection(){
 	return m_direction;
+}
+
+void DxLightClass::SetAmbientColor(float r, float g, float b, float a){
+	m_ambientColor = D3DXVECTOR4(r, g, b, a);
+}
+
+D3DXVECTOR4 DxLightClass::GetAmbientColor(){
+	return m_ambientColor;
 }

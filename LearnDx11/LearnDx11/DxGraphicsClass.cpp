@@ -29,8 +29,8 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	m_camera = new DxCameraClass();
 	if (!m_camera)
 		return false;
-	m_camera->SetPosition(0.0f, 10.0f, -10.0f);
-	m_camera->SetRotation(45.0f, 0.0f, 0.0f);
+	m_camera->SetPosition(0.0f, 1.0f, -10.0f);
+	m_camera->SetRotation(0.0f, 0.0f, 0.0f);
 
 	m_floor = new DxModelClass();
 	if (!m_floor) {
@@ -64,6 +64,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	if (!m_light) {
 		return false;
 	}
+	m_light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_light->SetDiffuseColor(1.0f,1.0f, 1.0f, 1.0f);
 	m_light->SetDirection(-1.0f, -1.0f, 1.0f);
 
@@ -202,33 +203,30 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	//缩放地板
 	D3DXMatrixScaling(&transformMatrix, 5.0f, 1.0f, 5.0f);
 	floorWorldMatrix *= transformMatrix;
-	//旋转
-	//D3DXMatrixRotationX(&transformMatrix, PI/2);
-	//floorWorldMatrix *= transformMatrix;
 	//平移
 	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
 	floorWorldMatrix *= transformMatrix;
 	m_floor->Render(m_dx3dcls->GetDeviceContext());
 	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(),
-		floorWorldMatrix, viewMatrix, projectionMatrix, m_floor->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor());
+		floorWorldMatrix, viewMatrix, projectionMatrix, m_floor->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
 
 	if (!isSuccess)
 		return false;
 
 	D3DXMatrixRotationY(&transformMatrix, rotation);
 	worldMatrix *= transformMatrix;
-	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
+	D3DXMatrixTranslation(&transformMatrix, 0.0f, 1.0f, 0.0f);
 	worldMatrix *= transformMatrix;
 	
-	/*
+
 	m_model->Render(m_dx3dcls->GetDeviceContext());
 
 	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(), 
-		worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor());
+		worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
 
 	if (!isSuccess)
 		return false;
-	*/
+
 	m_dx3dcls->EndScene();
 
 	return true;

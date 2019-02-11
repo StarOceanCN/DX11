@@ -18,7 +18,7 @@ public:
 	void ShutDown();
 	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 		D3DXMATRIX projectionMartix, ID3D11ShaderResourceView* texture, 
-		D3DXVECTOR3 lightDirection , D3DXVECTOR4 diffuseColor);
+		D3DXVECTOR3 lightDirection , D3DXVECTOR4 diffuseColor, D3DXVECTOR4 ambientColor);
 
 private:
 	bool ShaderInit(ID3D11Device* devic, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader);
@@ -27,7 +27,7 @@ private:
 
 	bool ShaderSetParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 		D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, 
-		D3DXVECTOR3 lightDirection, D3DXVECTOR4 diffuseColor);
+		D3DXVECTOR3 lightDirection, D3DXVECTOR4 diffuseColor, D3DXVECTOR4 ambientColor);
 	void ShaderRender(ID3D11DeviceContext* deviceContext, int indexCount);
 
 private:
@@ -38,6 +38,7 @@ private:
 	};
 
 	struct LightBufferType {
+		D3DXVECTOR4 ambientColor;
 		D3DXVECTOR4 diffuesColor;
 		D3DXVECTOR3 lightDirection;
 		float padding;// Added extra padding so structure is a multiple of 16 for CreateBuffer function requirements.
