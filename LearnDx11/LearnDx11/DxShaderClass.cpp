@@ -14,9 +14,9 @@ DxShaderClass::DxShaderClass(const DxShaderClass& other) {
 
 DxShaderClass::~DxShaderClass() {}
 
-bool DxShaderClass::Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader) {
+bool DxShaderClass::Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader, const char* VSname, const char* PSname) {
 	bool isSuccess;
-	isSuccess = ShaderInit(device, hwnd, vertexShader, pixelShader);
+	isSuccess = ShaderInit(device, hwnd, vertexShader, pixelShader, VSname, PSname);
 	if (!isSuccess)
 		return false;
 	return true;
@@ -46,7 +46,7 @@ bool DxShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount,
 * Blobs can be used as a data buffer, storing vertex, adjacency, and material information during mesh optimization and loading operations. 
 * Also, these objects are used to return object code and error messages in APIs that compile vertex, geometry and pixel shaders.
 */
-bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader) {
+bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader, const char* VSname, const char* PSname) {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
@@ -63,7 +63,7 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 	pixelShaderBuffer = 0;
 
 
-	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, "SkyboxVertexShader", "vs_5_0", 
+	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, VSname, "vs_5_0", 
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &vertexShaderBuffer, &errorMessage, NULL);
 
 
@@ -77,7 +77,7 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 		return false;
 	}
 
-	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, "SkyboxPixelShader", "ps_5_0",
+	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, PSname, "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &pixelShaderBuffer, &errorMessage, NULL);
 
 	if (FAILED(result)) {
@@ -323,9 +323,9 @@ DxTextureShaderClass::DxTextureShaderClass(const DxTextureShaderClass& other) {
 
 DxTextureShaderClass::~DxTextureShaderClass() {}
 
-bool DxTextureShaderClass::Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader) {
+bool DxTextureShaderClass::Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader,const char* VSname, const char* PSname) {
 	bool isSuccess;
-	isSuccess = ShaderInit(device, hwnd, vertexShader, pixelShader);
+	isSuccess = ShaderInit(device, hwnd, vertexShader, pixelShader,VSname, PSname);
 	if (!isSuccess)
 		return false;
 	return true;
@@ -347,7 +347,7 @@ bool DxTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexC
 
 	return true;
 }
-bool DxTextureShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader) {
+bool DxTextureShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader, const char* VSname, const char* PSname) {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
@@ -363,7 +363,7 @@ bool DxTextureShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCH
 	pixelShaderBuffer = 0;
 
 
-	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, "TextureVertexShader", "vs_5_0",
+	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, VSname, "vs_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &vertexShaderBuffer, &errorMessage, NULL);
 
 
@@ -377,7 +377,7 @@ bool DxTextureShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCH
 		return false;
 	}
 
-	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, "TexturePixelShader", "ps_5_0",
+	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, PSname, "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &pixelShaderBuffer, &errorMessage, NULL);
 
 	if (FAILED(result)) {

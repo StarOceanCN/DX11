@@ -14,14 +14,14 @@ public:
 	DxShaderClass(const DxShaderClass& other);
 	~DxShaderClass();
 
-	bool Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader,const WCHAR* pixelShader);
+	bool Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader,const WCHAR* pixelShader, const char* VSname, const char* PSname);
 	void ShutDown();
 	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 		D3DXMATRIX projectionMartix, ID3D11ShaderResourceView* texture, 
 		D3DXVECTOR3 lightDirection , D3DXVECTOR4 diffuseColor, D3DXVECTOR4 ambientColor);
 
 private:
-	bool ShaderInit(ID3D11Device* devic, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader);
+	bool ShaderInit(ID3D11Device* devic, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader, const char* VSname, const char* PSname);
 	void ShaderShutDown();
 	void ShaderOutputErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const WCHAR* fileName);
 
@@ -60,13 +60,13 @@ public:
 	DxTextureShaderClass(const DxTextureShaderClass& other);
 	~DxTextureShaderClass();
 
-	bool Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader);
+	bool Init(ID3D11Device* device, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader, const char* VSname, const char* PSname);
 	void ShutDown();
 	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
 		D3DXMATRIX projectionMartix, ID3D11ShaderResourceView* texture);
 
 private:
-	bool ShaderInit(ID3D11Device* devic, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader);
+	bool ShaderInit(ID3D11Device* devic, HWND hwnd, const WCHAR* vertexShader, const WCHAR* pixelShader, const char* VSname, const char* PSname);
 	void ShaderShutDown();
 	void ShaderOutputErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const WCHAR* fileName);
 

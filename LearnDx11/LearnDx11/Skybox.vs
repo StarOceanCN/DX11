@@ -25,7 +25,7 @@ PixelInputType SkyboxVertexShader(VertexInputType input){
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-    output.position.xyzw = output.position.xyww;
+    output.position.z = output.position.w;
 
     output.texCoord = input.texCoord;
     output.normal = input.position;

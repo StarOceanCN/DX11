@@ -55,7 +55,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	if (!m_ModelShader) {
 		return false;
 	}
-	isSuccess = m_ModelShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Skybox.vs", L"../LearnDx11/Skybox.ps");
+	isSuccess = m_ModelShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Skybox.vs", L"../LearnDx11/Skybox.ps", "SkyboxVertexShader", "SkyboxPixelShader");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
@@ -73,7 +73,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	if (!m_2dShader) {
 		return false;
 	}
-	isSuccess = m_2dShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Texture.vs", L"../LearnDx11/Texture.ps");
+	isSuccess = m_2dShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Texture.vs", L"../LearnDx11/Texture.ps", "TextureVertexShader", "TexturePixelShader");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
 		return false;
@@ -178,9 +178,28 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	m_dx3dcls->GetWorldMatrix(worldMatrix);
 	m_dx3dcls->GetOrthoMatrix(orthoMatrix);
 
-	// Turn off the Z buffer to begin all 2D rendering.
-	m_dx3dcls->ZBufferTurnOff();
 
+	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
+	// Get the position of the camera.
+	cameraPosition = m_camera->GetPosition();
+	// Translate the sky dome to be centered around the camera position.
+	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+	// Turn off back face culling.
+	m_dx3dcls->CullingTurnOff();
+	// Turn off the Z buffer.
+	m_dx3dcls->ZBufferTurnOff();
+	m_model->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(),
+		worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	if (!isSuccess)
+		return false;
+	m_dx3dcls->CullingTurnOn();
+	// Turn the Z buffer back on.
+	m_dx3dcls->ZBufferTurnOn();
+	// Turn off the Z buffer to begin all 2D rendering.
+	m_dx3dcls->GetWorldMatrix(worldMatrix);
+
+	m_dx3dcls->ZBufferTurnOff();
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	isSuccess = m_bitmap->Render(m_dx3dcls->GetDeviceContext(), 0, 0);
 	if (!isSuccess)
@@ -194,11 +213,7 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	{
 		return false;
 	}
-
 	m_dx3dcls->ZBufferTurnOn();
-
-
-	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
 	/*
 	D3DXMATRIX floorWorldMatrix;
 	floorWorldMatrix = worldMatrix;
@@ -215,31 +230,6 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	if (!isSuccess)
 		return false;
 	*/
-
-	// Get the position of the camera.
-	cameraPosition = m_camera->GetPosition();
-
-	// Translate the sky dome to be centered around the camera position.
-	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
-		// Turn off back face culling.
-	m_dx3dcls->CullingTurnOff();
-
-	// Turn off the Z buffer.
-	m_dx3dcls->ZBufferTurnOff();
-
-	m_model->Render(m_dx3dcls->GetDeviceContext());
-
-	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(),
-		worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
-
-	if (!isSuccess)
-		return false;
-
-	m_dx3dcls->CullingTurnOn();
-
-	// Turn the Z buffer back on.
-	m_dx3dcls->ZBufferTurnOn();
 
 
 	//D3DXMatrixRotationY(&transformMatrix, rotation);
