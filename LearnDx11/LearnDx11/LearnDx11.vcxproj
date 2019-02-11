@@ -184,12 +184,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <Text Include="Skybox.vs">
+      <FileType>CppCode</FileType>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps" />
     <None Include="Color.vs" />
     <None Include="Light.ps" />
     <None Include="Light.vs" />
+    <None Include="Skybox.ps" />
     <None Include="Texture.ps" />
     <None Include="Texture.vs" />
   </ItemGroup>

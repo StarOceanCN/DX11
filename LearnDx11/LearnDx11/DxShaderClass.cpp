@@ -63,7 +63,7 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 	pixelShaderBuffer = 0;
 
 
-	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, "LightVertexShader", "vs_5_0", 
+	result = D3DX11CompileFromFile(vertexShader, NULL, NULL, "SkyboxVertexShader", "vs_5_0", 
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &vertexShaderBuffer, &errorMessage, NULL);
 
 
@@ -77,7 +77,7 @@ bool DxShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCHAR* ver
 		return false;
 	}
 
-	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, "LightPixelShader", "ps_5_0",
+	result = D3DX11CompileFromFile(pixelShader, NULL, NULL, "SkyboxPixelShader", "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, &pixelShaderBuffer, &errorMessage, NULL);
 
 	if (FAILED(result)) {

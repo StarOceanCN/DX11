@@ -103,7 +103,19 @@
     <None Include="Texture.ps">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Light.ps" />
-    <None Include="Light.vs" />
+    <None Include="Light.ps">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Light.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Skybox.ps">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Skybox.vs">
+      <Filter>Shader</Filter>
+    </Text>
   </ItemGroup>
 </Project>

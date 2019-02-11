@@ -10,6 +10,7 @@ Dx3dClass::Dx3dClass() {
 	m_depthStencilView = 0;
 	m_rasterState = 0;
 	m_depthDisabledStencilState = 0;
+	m_rasterStateNoCulling = 0;
 }
 
 Dx3dClass::Dx3dClass(const Dx3dClass& other) {
@@ -309,6 +310,26 @@ bool Dx3dClass::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 	//now set the rasterizer state
 	m_deviceContext->RSSetState(m_rasterState);
 
+	// Setup a raster description which turns off back face culling.
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the no culling rasterizer state.
+	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterStateNoCulling);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+
 	//setup the viewport for rendering 
 	viewport.Width = (float)screenWidth;
 	viewport.Height = (float)screenHeight;
@@ -385,6 +406,12 @@ void Dx3dClass::ShutDown() {
 		m_depthStencilView->Release();
 		m_depthStencilView = 0;
 
+	}
+
+	if (m_rasterStateNoCulling)
+	{
+		m_rasterStateNoCulling->Release();
+		m_rasterStateNoCulling = 0;
 	}
 
 	if (m_depthStencilBuffer) {
@@ -465,5 +492,23 @@ void Dx3dClass::ZBufferTurnOn(){
 void Dx3dClass::ZBufferTurnOff(){
 	m_deviceContext->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
 }
+
+void Dx3dClass::CullingTurnOn()
+{
+	// Set the culling rasterizer state.
+	m_deviceContext->RSSetState(m_rasterState);
+
+	return;
+}
+
+
+void Dx3dClass::CullingTurnOff()
+{
+	// Set the no back face culling rasterizer state.
+	m_deviceContext->RSSetState(m_rasterStateNoCulling);
+
+	return;
+}
+
 
 

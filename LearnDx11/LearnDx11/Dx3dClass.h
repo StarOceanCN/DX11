@@ -44,6 +44,9 @@ public:
 
 	void ZBufferTurnOn();
 	void ZBufferTurnOff();
+
+	void CullingTurnOn();
+	void CullingTurnOff();
 private:
 	bool m_vsync_enabled;
 	int m_videoCardMemory;
@@ -58,6 +61,7 @@ private:
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_rasterState;
 	ID3D11DepthStencilState* m_depthDisabledStencilState;
+	ID3D11RasterizerState* m_rasterStateNoCulling;
 
 	D3DXMATRIX m_projectionMatrix;
 	D3DXMATRIX m_worldMatrix;

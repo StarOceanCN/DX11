@@ -1,0 +1,23 @@
+TextureCube shaderTexture;
+SamplerState sampleType;
+
+cbuffer LightBuffer{
+    float4 ambientColor;
+    float4 diffuseColor;
+    float3 lightDirection;
+    float padding;
+};
+
+ struct PixelInputType{
+     float4 position:SV_POSITION;
+     float2 texCoord:TEXCOORD0;
+     float3 normal: NORMAL;
+ };
+
+ float4 SkyboxPixelShader(PixelInputType input):SV_TARGET{
+     float4 textureColor;
+
+     textureColor = shaderTexture.Sample(sampleType, input.normal);
+
+     return textureColor;
+ }
