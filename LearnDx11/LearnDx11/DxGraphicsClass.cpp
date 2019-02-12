@@ -167,7 +167,7 @@ void DxGraphicsClass::ShutDown() {
 
 }
 
-bool DxGraphicsClass::Frame() {
+bool DxGraphicsClass::Frame(int mouseX, int mouseY) {
 	static float rotation = 0.0f;
 	static float move = 0.0f;
 
@@ -177,7 +177,7 @@ bool DxGraphicsClass::Frame() {
 	if (rotation > 360.0f) {
 		rotation -= 360.0f;
 	}
-
+	m_text->SetMousePosition(mouseX, mouseY, m_dx3dcls->GetDeviceContext());
 	bool isSuccess = Render(rotation, move);
 	if (!isSuccess)
 		return false;

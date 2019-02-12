@@ -24,7 +24,11 @@ bool DxSysClass::Init() {
 		return false;
 	}
 
-	m_input->Init();
+	isSuccess = m_input->Init(m_instance, m_hwnd, screenWidth, screenHeight);
+	if (!isSuccess) {
+		MessageBox(m_hwnd, L"Could not initialize the input object.", L"Error", MB_OK);
+		return false;
+	}
 	
 	m_graph = new DxGraphicsClass();
 	if (!m_graph) {
@@ -36,6 +40,7 @@ bool DxSysClass::Init() {
 
 void DxSysClass::ShutDown() {
 	if (m_input) {
+		m_input->ShutDown();
 		delete m_input;
 		m_input = 0;
 	}
@@ -67,23 +72,39 @@ void DxSysClass::Run() {
 			done = true;
 		else {
 			isSuccess = Frame();
-			if (!isSuccess)
+			if (!isSuccess) {
+				MessageBox(m_hwnd, L"Frame Processing Failed", L"Error", MB_OK);
 				done = true;
+			}
 		}
+		if (m_input->IsEscapePressed())
+			done = true;
+
 	}
 }
 
 bool DxSysClass::Frame() {
-	if (m_input->IsKeyDown(VK_ESCAPE))
-		return false;
 	bool isSuccess;
-	isSuccess = m_graph->Frame();
+	int mouseX, mouseY;
+
+	// Do the input frame processing.
+	isSuccess = m_input->Frame();
+	if (!isSuccess){
+		return false;
+	}
+	// Get the location of the mouse from the input object,
+	m_input->GetMouseLocation(mouseX, mouseY);
+
+	isSuccess = m_graph->Frame(mouseX, mouseY);
 	if (!isSuccess)
 		return false;
+
 	return true;
 }
 
 LRESULT CALLBACK DxSysClass::MessageHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+	//remove 
+	/*
 	switch (msg)
 	{
 	case WM_KEYDOWN:
@@ -92,9 +113,8 @@ LRESULT CALLBACK DxSysClass::MessageHandler(HWND hwnd, UINT msg, WPARAM wparam, 
 	case WM_KEYUP:
 		m_input->KeyUp((unsigned int)wparam);
 		return 0;
-	default:
-		return DefWindowProc(hwnd, msg, wparam, lparam);
-	}
+	default:*/
+	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
 void DxSysClass::WindowsInit(int& screenWidth, int& screenHeight) {

@@ -31,6 +31,8 @@ public:
 	void ShutDown();
 	bool Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix);
 
+	bool SetMousePosition(int, int, ID3D11DeviceContext*);
+
 private:
 	bool InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device);
 	bool UpdateSentence(SentenceType* sentence, char* text, int positionX, int positionY, float red, float green, float blue,

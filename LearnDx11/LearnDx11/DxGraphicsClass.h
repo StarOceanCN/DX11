@@ -23,7 +23,7 @@ public:
 	~DxGraphicsClass();
 	bool Init(int screenWidth, int screenHeight, HWND m_hwnd);
 	void ShutDown();
-	bool Frame();
+	bool Frame(int x, int y);
 
 private:
 	bool Render(float rotation, float move);
