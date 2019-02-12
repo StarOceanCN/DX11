@@ -31,7 +31,9 @@ public:
 	void ShutDown();
 	bool Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix);
 
-	bool SetMousePosition(int, int, ID3D11DeviceContext*);
+	bool SetMousePosition(int x, int y, ID3D11DeviceContext* deviceContext);
+	bool SetFps(int fps, ID3D11DeviceContext* deviceContext);
+	bool SetCpu(int cpuUsage, ID3D11DeviceContext* deviceContext);
 
 private:
 	bool InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device);
@@ -49,6 +51,8 @@ private:
 
 	SentenceType* m_sentence1;
 	SentenceType* m_sentence2;
+	SentenceType* m_sentence3;
+	SentenceType* m_sentence4;
 };
 
 #endif //DXTEXTCLASS

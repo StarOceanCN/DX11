@@ -5,8 +5,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include<Windows.h>
 
-#include "DxInputClass.h"
-#include "DxGraphicsClass.h"
+#include"DxInputClass.h"
+#include"DxGraphicsClass.h"
+#include"DxTimerClass.h"
+#include"DxCpuClass.h";
+#include"DxFpsClass.h"
 
 class DxSysClass
 {
@@ -46,6 +49,10 @@ private:
 
 	DxInputClass* m_input;
 	DxGraphicsClass* m_graph;
+
+	DxFpsClass* m_fps;
+	DxCpuClass* m_cpuUsage;
+	DxTimerClass* m_Timer;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

@@ -157,6 +157,7 @@
     <ClInclude Include="Dx2DRenderClass.h" />
     <ClInclude Include="Dx3dClass.h" />
     <ClInclude Include="DxCameraClass.h" />
+    <ClInclude Include="DxCpuClass.h" />
     <ClInclude Include="DxFontClass.h" />
     <ClInclude Include="DxGraphicsClass.h" />
     <ClInclude Include="DxInputClass.h" />
@@ -166,13 +167,17 @@
     <ClInclude Include="DxSysClass.h" />
     <ClInclude Include="DxTextClass.h" />
     <ClInclude Include="DxTextureClass.h" />
+    <ClInclude Include="DxTimerClass.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dx2DRenderClass.cpp" />
     <ClCompile Include="Dx3dClass.cpp" />
     <ClCompile Include="DxCameraClass.cpp" />
+    <ClCompile Include="DxCpuClass.cpp" />
     <ClCompile Include="DxFontClass.cpp" />
+    <ClCompile Include="DxFpsClass.cpp" />
+    <ClCompile Include="DxFpsClass.h" />
     <ClCompile Include="DxGraphicsClass.cpp" />
     <ClCompile Include="DxInputClass.cpp" />
     <ClCompile Include="DxLightClass.cpp" />
@@ -181,6 +186,7 @@
     <ClCompile Include="DxSysClass.cpp" />
     <ClCompile Include="DxTextClass.cpp" />
     <ClCompile Include="DxTextureClass.cpp" />
+    <ClCompile Include="DxTimerClass.cpp" />
     <ClCompile Include="LearnDx11.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

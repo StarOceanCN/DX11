@@ -3,6 +3,9 @@
 DxSysClass::DxSysClass() {
 	m_input = 0;
 	m_graph = 0;
+	m_fps = 0;
+	m_cpuUsage = 0;
+	m_Timer = 0;
 }
 
 DxSysClass::DxSysClass(const DxSysClass& other) {
@@ -35,7 +38,39 @@ bool DxSysClass::Init() {
 		return false;
 	}
 	isSuccess = m_graph->Init(screenWidth, screenHeight, m_hwnd);
-	return isSuccess;
+
+	// Create the fps object.
+	m_fps = new DxFpsClass();
+	if (!m_fps){
+		return false;
+	}
+
+	// Initialize the fps object.
+	m_fps->Init();
+
+	// Create the cpu object.
+	m_cpuUsage = new DxCpuClass();
+	if (!m_cpuUsage){
+		return false;
+	}
+
+	// Initialize the cpu object.
+	m_cpuUsage->Init();
+
+	// Create the timer object.
+	m_Timer = new DxTimerClass();
+	if (!m_Timer){
+		return false;
+	}
+
+	// Initialize the timer object.
+	isSuccess = m_Timer->Init();
+	if (!isSuccess){
+		MessageBox(m_hwnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
+		return false;
+	}
+
+	return true;
 }
 
 void DxSysClass::ShutDown() {
@@ -49,6 +84,19 @@ void DxSysClass::ShutDown() {
 		m_graph->ShutDown();
 		delete m_graph;
 		m_graph = 0;
+	}
+	if (m_cpuUsage) {
+		m_cpuUsage->ShutDown();
+		delete m_cpuUsage;
+		m_cpuUsage = 0;
+	}
+	if (m_fps) {
+		delete m_fps;
+		m_fps = 0;
+	}
+	if (m_Timer) {
+		delete m_Timer;
+		m_Timer = 0;
 	}
 
 	WindowsShutDown();
@@ -87,6 +135,10 @@ bool DxSysClass::Frame() {
 	bool isSuccess;
 	int mouseX, mouseY;
 
+	m_fps->Frame();
+	m_Timer->Frame();
+	m_cpuUsage->Frame();
+
 	// Do the input frame processing.
 	isSuccess = m_input->Frame();
 	if (!isSuccess){
@@ -95,7 +147,7 @@ bool DxSysClass::Frame() {
 	// Get the location of the mouse from the input object,
 	m_input->GetMouseLocation(mouseX, mouseY);
 
-	isSuccess = m_graph->Frame(mouseX, mouseY);
+	isSuccess = m_graph->Frame(mouseX, mouseY, m_fps->GetFps(), m_cpuUsage->GetCpuPercentage());
 	if (!isSuccess)
 		return false;
 

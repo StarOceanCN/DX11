@@ -167,7 +167,7 @@ void DxGraphicsClass::ShutDown() {
 
 }
 
-bool DxGraphicsClass::Frame(int mouseX, int mouseY) {
+bool DxGraphicsClass::Frame(int mouseX, int mouseY, int fps, int cpuUsage) {
 	static float rotation = 0.0f;
 	static float move = 0.0f;
 
@@ -178,6 +178,9 @@ bool DxGraphicsClass::Frame(int mouseX, int mouseY) {
 		rotation -= 360.0f;
 	}
 	m_text->SetMousePosition(mouseX, mouseY, m_dx3dcls->GetDeviceContext());
+	m_text->SetCpu(cpuUsage, m_dx3dcls->GetDeviceContext());
+	m_text->SetFps(fps, m_dx3dcls->GetDeviceContext());
+
 	bool isSuccess = Render(rotation, move);
 	if (!isSuccess)
 		return false;

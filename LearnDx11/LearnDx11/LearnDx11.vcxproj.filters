@@ -57,6 +57,12 @@
     <ClInclude Include="DxTextClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DxCpuClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DxTimerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -99,6 +105,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DxTextClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxFpsClass.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxFpsClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxCpuClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxTimerClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
