@@ -157,12 +157,14 @@
     <ClInclude Include="Dx2DRenderClass.h" />
     <ClInclude Include="Dx3dClass.h" />
     <ClInclude Include="DxCameraClass.h" />
+    <ClInclude Include="DxFontClass.h" />
     <ClInclude Include="DxGraphicsClass.h" />
     <ClInclude Include="DxInputClass.h" />
     <ClInclude Include="DxLightClass.h" />
     <ClInclude Include="DxModelClass.h" />
     <ClInclude Include="DxShaderClass.h" />
     <ClInclude Include="DxSysClass.h" />
+    <ClInclude Include="DxTextClass.h" />
     <ClInclude Include="DxTextureClass.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
@@ -170,12 +172,14 @@
     <ClCompile Include="Dx2DRenderClass.cpp" />
     <ClCompile Include="Dx3dClass.cpp" />
     <ClCompile Include="DxCameraClass.cpp" />
+    <ClCompile Include="DxFontClass.cpp" />
     <ClCompile Include="DxGraphicsClass.cpp" />
     <ClCompile Include="DxInputClass.cpp" />
     <ClCompile Include="DxLightClass.cpp" />
     <ClCompile Include="DxModelClass.cpp" />
     <ClCompile Include="DxShaderClass.cpp" />
     <ClCompile Include="DxSysClass.cpp" />
+    <ClCompile Include="DxTextClass.cpp" />
     <ClCompile Include="DxTextureClass.cpp" />
     <ClCompile Include="LearnDx11.cpp" />
     <ClCompile Include="pch.cpp">
@@ -191,6 +195,8 @@
   <ItemGroup>
     <None Include="Color.ps" />
     <None Include="Color.vs" />
+    <None Include="Font.ps" />
+    <None Include="Font.vs" />
     <None Include="Light.ps" />
     <None Include="Light.vs" />
     <None Include="Skybox.ps" />

@@ -9,6 +9,7 @@ DxGraphicsClass::DxGraphicsClass() {
 	m_light = 0;
 	m_bitmap = 0;
 	m_floor = 0;
+	m_text = 0;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
@@ -31,6 +32,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	m_camera->SetPosition(0.0f, 1.0f, -10.0f);
 	m_camera->SetRotation(0.0f, 0.0f, 0.0f);
+	m_camera->Render();
 
 	m_floor = new DxModelClass();
 	if (!m_floor) {
@@ -91,7 +93,22 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
+	D3DXMATRIX baseViewMatrix;
+	m_camera->GetViewMatrix(baseViewMatrix);
+	// Create the text object.
+	m_text = new DxTextClass();
+	if (!m_text)
+	{
+		return false;
+	}
 
+	// Initialize the text object.
+	isSuccess = m_text->Init(m_dx3dcls->GetDevice(), m_dx3dcls->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+	if (!isSuccess)
+	{
+		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
+		return false;
+	}
 	return true;
 }
 
@@ -142,6 +159,12 @@ void DxGraphicsClass::ShutDown() {
 		m_dx3dcls = 0;
 	}
 
+	if (m_text) {
+		m_text->ShutDown();
+		delete m_text;
+		m_text = 0;
+	}
+
 }
 
 bool DxGraphicsClass::Frame() {
@@ -178,7 +201,6 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	m_dx3dcls->GetWorldMatrix(worldMatrix);
 	m_dx3dcls->GetOrthoMatrix(orthoMatrix);
 
-
 	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
 	// Get the position of the camera.
 	cameraPosition = m_camera->GetPosition();
@@ -208,12 +230,32 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	}
 
 	// Render the bitmap with the texture shader.
-	isSuccess = m_2dShader->Render(m_dx3dcls->GetDeviceContext(), m_bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_bitmap->GetTexture());
+	isSuccess = m_2dShader->Render(m_dx3dcls->GetDeviceContext(), m_bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_bitmap->GetTexture(), NULL);
 	if (!isSuccess)
 	{
 		return false;
 	}
 	m_dx3dcls->ZBufferTurnOn();
+
+	// Turn off the Z buffer to begin all 2D rendering.
+	m_dx3dcls->ZBufferTurnOff();
+
+	// Turn on the alpha blending before rendering the text.
+	m_dx3dcls->AlphaBlendingTurnOn();
+
+	// Render the text strings.
+	isSuccess = m_text->Render(m_dx3dcls->GetDeviceContext(), worldMatrix, orthoMatrix);
+	if (!isSuccess)
+	{
+		return false;
+	}
+
+	// Turn off alpha blending after rendering the text.
+	m_dx3dcls->AlphaBlendingTurnOff();
+
+	// Turn the Z buffer back on now that all 2D rendering has completed.
+	m_dx3dcls->ZBufferTurnOn();
+
 	/*
 	D3DXMATRIX floorWorldMatrix;
 	floorWorldMatrix = worldMatrix;

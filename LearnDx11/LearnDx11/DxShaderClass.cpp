@@ -316,6 +316,7 @@ DxTextureShaderClass::DxTextureShaderClass() {
 	m_layout = 0;
 	m_matrixBuffer = 0;
 	m_sampleState = 0;
+	m_pixelBuffer = 0;
 }
 DxTextureShaderClass::DxTextureShaderClass(const DxTextureShaderClass& other) {
 
@@ -336,10 +337,10 @@ void DxTextureShaderClass::ShutDown() {
 }
 
 bool DxTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount,
-	D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture) {
+	D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4* pixelColor) {
 	bool isSuccess;
 
-	isSuccess = ShaderSetParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+	isSuccess = ShaderSetParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture , pixelColor);
 	if (!isSuccess)
 		return false;
 
@@ -465,6 +466,24 @@ bool DxTextureShaderClass::ShaderInit(ID3D11Device* device, HWND hwnd, const WCH
 		return false;
 	}
 
+	//像素着色器缓冲区设置，当前无论像素着色器有没有缓冲区都要设置，需要后续更改分离出去。
+	D3D11_BUFFER_DESC pixelBufferDesc;
+	// Setup the description of the dynamic pixel constant buffer that is in the pixel shader.
+	pixelBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	pixelBufferDesc.ByteWidth = sizeof(PixelBufferType);
+	pixelBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	pixelBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	pixelBufferDesc.MiscFlags = 0;
+	pixelBufferDesc.StructureByteStride = 0;
+
+	// Create the pixel constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+	result = device->CreateBuffer(&pixelBufferDesc, NULL, &m_pixelBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+
 	return true;
 }
 
@@ -489,6 +508,10 @@ void DxTextureShaderClass::ShaderShutDown() {
 	if (m_vertexShader) {
 		m_vertexShader->Release();
 		m_vertexShader = 0;
+	}
+	if (m_pixelBuffer) {
+		m_pixelBuffer->Release();
+		m_pixelBuffer = 0;
 	}
 }
 
@@ -517,7 +540,7 @@ void DxTextureShaderClass::ShaderOutputErrorMessage(ID3D10Blob* errorMessage, HW
 }
 
 bool DxTextureShaderClass::ShaderSetParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix,
-	D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture) {
+	D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4* pixelColor) {
 
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -549,8 +572,38 @@ bool DxTextureShaderClass::ShaderSetParameters(ID3D11DeviceContext* deviceContex
 		deviceContext->PSSetShaderResources(0, 1, &texture);
 	}
 
+	if (pixelColor) {
+
+		PixelBufferType* dataPtr2;
+		//Lock the pixel constant buffer so it can be written to.
+		result = deviceContext->Map(m_pixelBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		// Get a pointer to the data in the pixel constant buffer.
+		dataPtr2 = (PixelBufferType*)mappedResource.pData;
+
+		// Copy the pixel color into the pixel constant buffer.
+		D3DXVECTOR4 pixelColorTemp(pixelColor->x, pixelColor->y, pixelColor->z ,pixelColor->w);
+		dataPtr2->pixelColor = pixelColorTemp;
+
+		// Unlock the pixel constant buffer.
+		deviceContext->Unmap(m_pixelBuffer, 0);
+
+		// Set the position of the pixel constant buffer in the pixel shader.
+		bufferNumber = 0;
+
+		// Now set the pixel constant buffer in the pixel shader with the updated value.
+		deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_pixelBuffer);
+
+	}
+
 	return true;
 }
+
+
 
 void DxTextureShaderClass::ShaderRender(ID3D11DeviceContext* deviceContext, int indexCount) {
 	deviceContext->IASetInputLayout(m_layout);

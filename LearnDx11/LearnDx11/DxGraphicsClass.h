@@ -7,6 +7,7 @@
 #include"DxShaderClass.h"
 #include"DxLightClass.h"
 #include"Dx2DRenderClass.h"
+#include"DxTextClass.h"
 
 
 const bool FULL_SCREEN = false;
@@ -35,6 +36,7 @@ private:
 	DxTextureShaderClass *m_2dShader;
 	DxLightClass* m_light;
 	Dx2DRenderClass* m_bitmap;
+	DxTextClass* m_text;
 };
 
 

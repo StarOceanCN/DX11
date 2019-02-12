@@ -51,6 +51,12 @@
     <ClInclude Include="Dx2DRenderClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DxFontClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DxTextClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -89,6 +95,12 @@
     <ClCompile Include="Dx2DRenderClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="DxFontClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxTextClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">
@@ -110,6 +122,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Skybox.ps">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Font.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Font.ps">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

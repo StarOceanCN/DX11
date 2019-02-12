@@ -6,17 +6,12 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 
-//#pragma comment(lib, "d3dcompiler.lib")
 #include <DXGI.h>
 #include <D3Dcommon.h>
 #include <D3D11.h>
-//#include <Windows.h>
-//#include <D3D11.h>
-//#include <DirectXMath.h>
+
 #include <D3DX10math.h>
 
-//#include <stdlib.h>
-//using namespace DirectX;
 
 const float PI = 3.141592654f;
 
@@ -47,6 +42,10 @@ public:
 
 	void CullingTurnOn();
 	void CullingTurnOff();
+
+	void AlphaBlendingTurnOn();
+	void AlphaBlendingTurnOff();
+
 private:
 	bool m_vsync_enabled;
 	int m_videoCardMemory;
@@ -62,6 +61,8 @@ private:
 	ID3D11RasterizerState* m_rasterState;
 	ID3D11DepthStencilState* m_depthDisabledStencilState;
 	ID3D11RasterizerState* m_rasterStateNoCulling;
+	ID3D11BlendState* m_alphaEnableBlendingState;
+	ID3D11BlendState* m_alphaDisableBlendingState;
 
 	D3DXMATRIX m_projectionMatrix;
 	D3DXMATRIX m_worldMatrix;
