@@ -24,15 +24,15 @@ public:
 	~DxGraphicsClass();
 	bool Init(int screenWidth, int screenHeight, HWND m_hwnd);
 	void ShutDown();
-	bool Frame(int x, int y, int fps, int cpuUsage, DxMoveClass* movePosition);
+	bool Frame(int x, int y, int fps, int cpuUsage, DxMoveClass* movePosition, bool isFirst);
 
 private:
-	bool Render(DxMoveClass* movePosition);
+	bool Render(DxMoveClass* movePosition, bool isFirst);
 
 private:
 	Dx3dClass* m_dx3dcls;
 	DxCameraClass* m_camera;
-	DxModelClass* m_skybox, *m_floor, *m_vehicle;
+	DxModelClass* m_skybox, *m_floor, *m_vehicle_top, *m_vehicle_bottom;
 	DxShaderClass* m_modelShader, *m_skyboxShader;
 	DxTextureShaderClass *m_2dShader;
 	DxLightClass* m_light;

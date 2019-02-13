@@ -55,6 +55,7 @@ private:
 	DxCpuClass* m_cpuUsage;
 	DxTimerClass* m_Timer;
 	DxMoveClass* m_move;
+	bool isFirst;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

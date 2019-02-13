@@ -11,7 +11,8 @@ DxGraphicsClass::DxGraphicsClass() {
 	m_bitmap = 0;
 	m_floor = 0;
 	m_text = 0;
-	m_vehicle = 0;
+	m_vehicle_top = 0;
+	m_vehicle_bottom = 0;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
@@ -50,16 +51,24 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
-	m_vehicle = new DxModelClass();
-	if (!m_vehicle) {
+	m_vehicle_top = new DxModelClass();
+	if (!m_vehicle_top) {
 		return false;
 	}
-	isSuccess = m_vehicle->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/rock.jpg");
+	isSuccess = m_vehicle_top->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/fir.jpg");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-
+	m_vehicle_bottom = new DxModelClass();
+	if (!m_vehicle_bottom) {
+		return false;
+	}
+	isSuccess = m_vehicle_bottom->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/sec.jpg");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
+		return false;
+	}
 	m_modelShader = new DxShaderClass();
 	isSuccess = m_modelShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Light.vs", L"../LearnDx11/Light.ps", "LightVertexShader", "LightPixelShader");
 	if (!isSuccess) {
@@ -144,15 +153,13 @@ void DxGraphicsClass::ShutDown() {
 		delete m_skyboxShader;
 		m_skyboxShader = 0;
 	}
-
 	if (m_2dShader) {
 		m_2dShader->ShutDown();
 		delete m_2dShader;
 		m_2dShader = 0;
 	}
 
-	if (m_bitmap)
-	{
+	if (m_bitmap){
 		m_bitmap->Shutdown();
 		delete m_bitmap;
 		m_bitmap = 0;
@@ -184,6 +191,16 @@ void DxGraphicsClass::ShutDown() {
 		delete m_dx3dcls;
 		m_dx3dcls = 0;
 	}
+	if (m_vehicle_bottom) {
+		m_vehicle_bottom->ShutDown();
+		delete m_vehicle_bottom;
+		m_vehicle_bottom = 0;
+	}
+	if (m_vehicle_top) {
+		m_vehicle_top->ShutDown();
+		delete m_vehicle_top;
+		m_vehicle_top = 0;
+	}
 
 	if (m_text) {
 		m_text->ShutDown();
@@ -193,29 +210,47 @@ void DxGraphicsClass::ShutDown() {
 
 }
 
-bool DxGraphicsClass::Frame(int mouseX, int mouseY, int fps, int cpuUsage, DxMoveClass* movePosition) {
+bool DxGraphicsClass::Frame(int mouseX, int mouseY, int fps, int cpuUsage, DxMoveClass* movePosition, bool isFirst) {
 
 	m_text->SetMousePosition(mouseX, mouseY, m_dx3dcls->GetDeviceContext());
 	m_text->SetCpu(cpuUsage, m_dx3dcls->GetDeviceContext());
 	m_text->SetFps(fps, m_dx3dcls->GetDeviceContext());
 
 
-	bool isSuccess = Render(movePosition);
+
+	bool isSuccess = Render(movePosition, isFirst);
 	if (!isSuccess)
 		return false;
 	return true;
 }
 
-bool DxGraphicsClass::Render(DxMoveClass* movePosition) {
+bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
 
 	D3DXMATRIX viewMatrix, worldMatrix, projectionMatrix;
 	D3DXMATRIX orthoMatrix;
 	D3DXMATRIX transformMatrix;
 	D3DXVECTOR3 cameraPosition;
 
-	bool isSuccess;
+	//输入获取模型和摄像机位置
+	float posX, posY, posZ;
+	float rotX, rotY, rotZ;
+	float cameraOffsetY;
+	float cameraOffsetZ;
 
+	cameraOffsetY = isFirst ? 1.0f : 0.1f;
+	cameraOffsetZ = isFirst ? 1.0f : -20.0f;
+
+	movePosition->GetPosition(posX, posY, posZ);
+	movePosition->GetRotation(rotX, rotY, rotZ);
+
+
+	bool isSuccess;
 	m_dx3dcls->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+	m_camera->SetPosition(posX, posY + cameraOffsetY, posZ + cameraOffsetZ);
+
+	//第一人称摄像头旋转
+	if (isFirst) { m_camera->SetRotation(rotX, rotY, rotZ); }
 
 	m_camera->Render();
 	//获取四个个矩阵
@@ -272,11 +307,11 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition) {
 	D3DXMATRIX floorWorldMatrix;
 	floorWorldMatrix = worldMatrix;
 	//缩放地板
-	D3DXMatrixScaling(&transformMatrix, 5.0f, 1.0f, 5.0f);
+	D3DXMatrixScaling(&transformMatrix, 150.0f, 1.0f, 150.0f);
 	floorWorldMatrix *= transformMatrix;
 	//平移
-	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
-	floorWorldMatrix *= transformMatrix;
+	//D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
+	//floorWorldMatrix *= transformMatrix;
 	//渲染
 	m_floor->Render(m_dx3dcls->GetDeviceContext());
 	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_floor->GetIndexCount(),
@@ -288,22 +323,36 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition) {
 	//车子渲染相关
 	D3DXMATRIX vehicleWorldMatrix;
 	//初始位置被DxMoveClass决定
-	float posX, posY, posZ;
-	float rotX, rotY, rotZ;
-	movePosition->GetPosition(posX, posY, posZ);
-	movePosition->GetRotation(rotX, rotY, rotZ);
 
 	vehicleWorldMatrix = worldMatrix;
+
+	//缩放
+	D3DXMatrixScaling(&transformMatrix, 2.0f, 1.0f, 4.0f);
+	vehicleWorldMatrix *= transformMatrix;
 	//旋转
 	D3DXMatrixRotationY(&transformMatrix, rotY*0.0174532925f);
 	vehicleWorldMatrix *= transformMatrix;
 	//平移
-	D3DXMatrixTranslation(&transformMatrix, posX, posY, posZ);
+	D3DXMatrixTranslation(&transformMatrix, posX, posY + 2.0f, posZ);
 	vehicleWorldMatrix *= transformMatrix;
 	//渲染
-	m_vehicle->Render(m_dx3dcls->GetDeviceContext());
-	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicle->GetIndexCount(),
-		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicle->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	m_vehicle_top->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicle_top->GetIndexCount(),
+		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicle_top->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	
+	vehicleWorldMatrix = worldMatrix;
+	//缩放
+	D3DXMatrixScaling(&transformMatrix, 1.5f, 1.0f, 2.0f);
+	vehicleWorldMatrix *= transformMatrix;
+	//旋转
+	D3DXMatrixRotationY(&transformMatrix, rotY * 0.0174532925f);
+	vehicleWorldMatrix *= transformMatrix;
+	//平移
+	D3DXMatrixTranslation(&transformMatrix, posX, posY + 3.5f, posZ);
+	vehicleWorldMatrix *= transformMatrix;
+	m_vehicle_bottom->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicle_bottom->GetIndexCount(),
+		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicle_bottom->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
 
 	if (!isSuccess)
 		return false;

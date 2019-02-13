@@ -7,6 +7,7 @@ DxSysClass::DxSysClass() {
 	m_cpuUsage = 0;
 	m_Timer = 0;
 	m_move = 0;
+	isFirst = false;
 }
 
 DxSysClass::DxSysClass(const DxSysClass& other) {
@@ -97,10 +98,10 @@ void DxSysClass::ShutDown() {
 		m_fps = 0;
 	}
 
-	//if (m_Timer) {
-	//	delete m_Timer;
-	//	m_Timer = 0;
-	//}
+	if (m_Timer) {
+		delete m_Timer;
+		m_Timer = 0;
+	}
 
 	if (m_move) {
 		delete m_move;
@@ -162,7 +163,15 @@ bool DxSysClass::Frame() {
 	m_move->MoveBackward(m_input->IsKeyPressed(DIK_S));
 	m_move->TurnLeft(m_input->IsKeyPressed(DIK_A));
 	m_move->TurnRight(m_input->IsKeyPressed(DIK_D));
-	isSuccess = m_graph->Frame(mouseX, mouseY, m_fps->GetFps(), m_cpuUsage->GetCpuPercentage(), m_move);
+	//第一人称/第三人称
+	if (m_input->IsKeyPressed(DIK_1)) {
+		isFirst = true;
+	}
+	if (m_input->IsKeyPressed(DIK_2)) {
+		isFirst = false;
+	}
+
+	isSuccess = m_graph->Frame(mouseX, mouseY, m_fps->GetFps(), m_cpuUsage->GetCpuPercentage(), m_move, isFirst);
 	if (!isSuccess)
 		return false;
 

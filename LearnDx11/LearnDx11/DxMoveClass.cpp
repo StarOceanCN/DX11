@@ -60,7 +60,7 @@ void DxMoveClass::MoveForward(bool keydown){
 
 	//按住向前按钮增加前进速度，松开后速度降低
 	if (keydown){
-		m_forwardSpeed += m_frameTime * 0.001f;
+		m_forwardSpeed += m_frameTime * 0.0005f;
 
 		if (m_forwardSpeed > (m_frameTime * 0.03f)){
 			m_forwardSpeed = m_frameTime * 0.03f;
@@ -88,7 +88,7 @@ void DxMoveClass::MoveBackward(bool keydown){
 	float radians;
 
 	if (keydown){
-		m_backwardSpeed += m_frameTime * 0.001f;
+		m_backwardSpeed += m_frameTime * 0.0005f;
 
 		if (m_backwardSpeed > (m_frameTime * 0.03f)){
 			m_backwardSpeed = m_frameTime * 0.03f;
