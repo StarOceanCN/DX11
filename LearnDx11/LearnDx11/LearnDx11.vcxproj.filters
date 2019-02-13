@@ -63,6 +63,9 @@
     <ClInclude Include="DxTimerClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DxMoveClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -117,6 +120,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DxTimerClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DxMoveClass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

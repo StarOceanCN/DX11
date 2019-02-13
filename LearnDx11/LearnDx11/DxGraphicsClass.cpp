@@ -3,13 +3,15 @@
 DxGraphicsClass::DxGraphicsClass() {
 	m_dx3dcls = 0;
 	m_camera = 0;
-	m_model = 0;
-	m_ModelShader = 0;
+	m_skybox = 0;
+	m_modelShader = 0;
+	m_skyboxShader = 0;
 	m_2dShader = 0;
 	m_light = 0;
 	m_bitmap = 0;
 	m_floor = 0;
 	m_text = 0;
+	m_vehicle = 0;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
@@ -26,14 +28,18 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Cant init Direct3d", L"Error", MB_OK);
 		return false;
 	}
-
+	//摄像机初始化
 	m_camera = new DxCameraClass();
 	if (!m_camera)
 		return false;
 	m_camera->SetPosition(0.0f, 1.0f, -10.0f);
 	m_camera->SetRotation(0.0f, 0.0f, 0.0f);
 	m_camera->Render();
+	D3DXMATRIX baseViewMatrix;
+	m_camera->GetViewMatrix(baseViewMatrix);
 
+
+	//模型初始化
 	m_floor = new DxModelClass();
 	if (!m_floor) {
 		return false;
@@ -44,24 +50,45 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
-	m_model = new DxModelClass();
-	if (!m_model)
+	m_vehicle = new DxModelClass();
+	if (!m_vehicle) {
 		return false;
-
-	isSuccess = m_model->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/SkyBox.txt",L"../LearnDx11/Texture/SkyboxTexture.dds");
+	}
+	isSuccess = m_vehicle->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/rock.jpg");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-	m_ModelShader = new DxShaderClass();
-	if (!m_ModelShader) {
-		return false;
-	}
-	isSuccess = m_ModelShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Skybox.vs", L"../LearnDx11/Skybox.ps", "SkyboxVertexShader", "SkyboxPixelShader");
+
+	m_modelShader = new DxShaderClass();
+	isSuccess = m_modelShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Light.vs", L"../LearnDx11/Light.ps", "LightVertexShader", "LightPixelShader");
 	if (!isSuccess) {
-		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Cant initialize the model shader object", L"Error", MB_OK);
 		return false;
 	}
+
+
+	//天空盒子初始化
+	m_skybox = new DxModelClass();
+	if (!m_skybox)
+		return false;
+
+	isSuccess = m_skybox->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/SkyBox.txt",L"../LearnDx11/Texture/SkyboxTexture.dds");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the skybox object", L"Error", MB_OK);
+		return false;
+	}
+	m_skyboxShader = new DxShaderClass();
+	if (!m_skyboxShader) {
+		return false;
+	}
+	isSuccess = m_skyboxShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Skybox.vs", L"../LearnDx11/Skybox.ps", "SkyboxVertexShader", "SkyboxPixelShader");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the skybox shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	//光源初始化
 	m_light = new DxLightClass();
 	if (!m_light) {
 		return false;
@@ -70,14 +97,14 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	m_light->SetDiffuseColor(1.0f,1.0f, 1.0f, 1.0f);
 	m_light->SetDirection(-1.0f, -1.0f, 1.0f);
 
-
+	//2dUI模型初始化
 	m_2dShader = new DxTextureShaderClass();
 	if (!m_2dShader) {
 		return false;
 	}
 	isSuccess = m_2dShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Texture.vs", L"../LearnDx11/Texture.ps", "TextureVertexShader", "TexturePixelShader");
 	if (!isSuccess) {
-		MessageBox(hwnd, L"Cant initialize the shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Cant initialize the 2dmodel shader object", L"Error", MB_OK);
 		return false;
 	}
 	m_bitmap = new Dx2DRenderClass();
@@ -86,16 +113,14 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
-	isSuccess = m_bitmap->Init(m_dx3dcls->GetDevice(), screenWidth, screenHeight, L"../LearnDx11/Texture/seafloor.gif", 256, 256);
+	isSuccess = m_bitmap->Init(m_dx3dcls->GetDevice(), screenWidth, screenHeight, L"../LearnDx11/Texture/seafloor.gif", 100, 100);
 	if (!isSuccess)
 	{
 		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 		return false;
 	}
 
-	D3DXMATRIX baseViewMatrix;
-	m_camera->GetViewMatrix(baseViewMatrix);
-	// Create the text object.
+	//文本初始化
 	m_text = new DxTextClass();
 	if (!m_text)
 	{
@@ -109,14 +134,15 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 		return false;
 	}
+
 	return true;
 }
 
 void DxGraphicsClass::ShutDown() {
-	if (m_ModelShader) {
-		m_ModelShader->ShutDown();
-		delete m_ModelShader;
-		m_ModelShader = 0;
+	if (m_skyboxShader) {
+		m_skyboxShader->ShutDown();
+		delete m_skyboxShader;
+		m_skyboxShader = 0;
 	}
 
 	if (m_2dShader) {
@@ -137,10 +163,10 @@ void DxGraphicsClass::ShutDown() {
 		m_light = 0;
 	}
 
-	if (m_model) {
-		m_model->ShutDown();
-		delete m_model;
-		m_model = 0;
+	if (m_skybox) {
+		m_skybox->ShutDown();
+		delete m_skybox;
+		m_skybox = 0;
 	}
 	if (m_floor) {
 		m_floor->ShutDown();
@@ -167,27 +193,20 @@ void DxGraphicsClass::ShutDown() {
 
 }
 
-bool DxGraphicsClass::Frame(int mouseX, int mouseY, int fps, int cpuUsage) {
-	static float rotation = 0.0f;
-	static float move = 0.0f;
+bool DxGraphicsClass::Frame(int mouseX, int mouseY, int fps, int cpuUsage, DxMoveClass* movePosition) {
 
-	rotation += (float)D3DX_PI*0.01f;
-	move += 0.1f;
-
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
-	}
 	m_text->SetMousePosition(mouseX, mouseY, m_dx3dcls->GetDeviceContext());
 	m_text->SetCpu(cpuUsage, m_dx3dcls->GetDeviceContext());
 	m_text->SetFps(fps, m_dx3dcls->GetDeviceContext());
 
-	bool isSuccess = Render(rotation, move);
+
+	bool isSuccess = Render(movePosition);
 	if (!isSuccess)
 		return false;
 	return true;
 }
 
-bool DxGraphicsClass::Render(float rotation, float move) {
+bool DxGraphicsClass::Render(DxMoveClass* movePosition) {
 
 	D3DXMATRIX viewMatrix, worldMatrix, projectionMatrix;
 	D3DXMATRIX orthoMatrix;
@@ -199,67 +218,57 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	m_dx3dcls->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	m_camera->Render();
-
+	//获取四个个矩阵
 	m_camera->GetViewMatrix(viewMatrix);
 	m_dx3dcls->GetWorldMatrix(worldMatrix);
 	m_dx3dcls->GetOrthoMatrix(orthoMatrix);
-
 	m_dx3dcls->GetProjectionMatrix(projectionMatrix);
-	// Get the position of the camera.
+
+
+	//获取摄像机位置用于天空盒
 	cameraPosition = m_camera->GetPosition();
-	// Translate the sky dome to be centered around the camera position.
+	//天空盒环绕摄像机
 	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-	// Turn off back face culling.
+	//关闭z缓冲
+	m_dx3dcls->ZBufferTurnOff();
+	//关闭面剔除
 	m_dx3dcls->CullingTurnOff();
-	// Turn off the Z buffer.
-	m_dx3dcls->ZBufferTurnOff();
-	m_model->Render(m_dx3dcls->GetDeviceContext());
-	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(),
-		worldMatrix, viewMatrix, projectionMatrix, m_model->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	//天空盒渲染
+	m_skybox->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_skyboxShader->Render(m_dx3dcls->GetDeviceContext(), m_skybox->GetIndexCount(),
+		worldMatrix, viewMatrix, projectionMatrix, m_skybox->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
 	if (!isSuccess)
 		return false;
+	//打开剔除
 	m_dx3dcls->CullingTurnOn();
-	// Turn the Z buffer back on.
-	m_dx3dcls->ZBufferTurnOn();
-	// Turn off the Z buffer to begin all 2D rendering.
+
+	//重置世界坐标位置矩阵
 	m_dx3dcls->GetWorldMatrix(worldMatrix);
-
-	m_dx3dcls->ZBufferTurnOff();
-	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//设置2dUI位置并渲染，0，0 为左上角
 	isSuccess = m_bitmap->Render(m_dx3dcls->GetDeviceContext(), 0, 0);
-	if (!isSuccess)
-	{
+	if (!isSuccess){
 		return false;
 	}
-
-	// Render the bitmap with the texture shader.
+	//UI渲染
 	isSuccess = m_2dShader->Render(m_dx3dcls->GetDeviceContext(), m_bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_bitmap->GetTexture(), NULL);
-	if (!isSuccess)
-	{
+	if (!isSuccess){
 		return false;
 	}
-	m_dx3dcls->ZBufferTurnOn();
 
-	// Turn off the Z buffer to begin all 2D rendering.
-	m_dx3dcls->ZBufferTurnOff();
 
-	// Turn on the alpha blending before rendering the text.
+	//开启混合用于文本渲染
 	m_dx3dcls->AlphaBlendingTurnOn();
-
-	// Render the text strings.
+	//渲染文本
 	isSuccess = m_text->Render(m_dx3dcls->GetDeviceContext(), worldMatrix, orthoMatrix);
-	if (!isSuccess)
-	{
+	if (!isSuccess){
 		return false;
 	}
-
-	// Turn off alpha blending after rendering the text.
+	//关闭混合
 	m_dx3dcls->AlphaBlendingTurnOff();
-
-	// Turn the Z buffer back on now that all 2D rendering has completed.
+	//开启z缓冲
 	m_dx3dcls->ZBufferTurnOn();
 
-	/*
+	//地板渲染相关变换
 	D3DXMATRIX floorWorldMatrix;
 	floorWorldMatrix = worldMatrix;
 	//缩放地板
@@ -268,20 +277,36 @@ bool DxGraphicsClass::Render(float rotation, float move) {
 	//平移
 	D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
 	floorWorldMatrix *= transformMatrix;
+	//渲染
 	m_floor->Render(m_dx3dcls->GetDeviceContext());
-	isSuccess = m_ModelShader->Render(m_dx3dcls->GetDeviceContext(), m_model->GetIndexCount(),
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_floor->GetIndexCount(),
 		floorWorldMatrix, viewMatrix, projectionMatrix, m_floor->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
 
 	if (!isSuccess)
 		return false;
-	*/
 
+	//车子渲染相关
+	D3DXMATRIX vehicleWorldMatrix;
+	//初始位置被DxMoveClass决定
+	float posX, posY, posZ;
+	float rotX, rotY, rotZ;
+	movePosition->GetPosition(posX, posY, posZ);
+	movePosition->GetRotation(rotX, rotY, rotZ);
 
-	//D3DXMatrixRotationY(&transformMatrix, rotation);
-	//worldMatrix *= transformMatrix;
-	//D3DXMatrixTranslation(&transformMatrix, 0.0f, 1.0f, 0.0f);
-	//worldMatrix *= transformMatrix;
-	
+	vehicleWorldMatrix = worldMatrix;
+	//旋转
+	D3DXMatrixRotationY(&transformMatrix, rotY*0.0174532925f);
+	vehicleWorldMatrix *= transformMatrix;
+	//平移
+	D3DXMatrixTranslation(&transformMatrix, posX, posY, posZ);
+	vehicleWorldMatrix *= transformMatrix;
+	//渲染
+	m_vehicle->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicle->GetIndexCount(),
+		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicle->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
+	if (!isSuccess)
+		return false;
 
 	m_dx3dcls->EndScene();
 

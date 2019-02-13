@@ -8,6 +8,7 @@
 #include"DxLightClass.h"
 #include"Dx2DRenderClass.h"
 #include"DxTextClass.h"
+#include"DxMoveClass.h"
 
 
 const bool FULL_SCREEN = false;
@@ -23,16 +24,16 @@ public:
 	~DxGraphicsClass();
 	bool Init(int screenWidth, int screenHeight, HWND m_hwnd);
 	void ShutDown();
-	bool Frame(int x, int y, int fps, int cpuUsage);
+	bool Frame(int x, int y, int fps, int cpuUsage, DxMoveClass* movePosition);
 
 private:
-	bool Render(float rotation, float move);
+	bool Render(DxMoveClass* movePosition);
 
 private:
 	Dx3dClass* m_dx3dcls;
 	DxCameraClass* m_camera;
-	DxModelClass* m_model, *m_floor;
-	DxShaderClass* m_ModelShader;
+	DxModelClass* m_skybox, *m_floor, *m_vehicle;
+	DxShaderClass* m_modelShader, *m_skyboxShader;
 	DxTextureShaderClass *m_2dShader;
 	DxLightClass* m_light;
 	Dx2DRenderClass* m_bitmap;

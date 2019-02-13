@@ -6,6 +6,7 @@ DxSysClass::DxSysClass() {
 	m_fps = 0;
 	m_cpuUsage = 0;
 	m_Timer = 0;
+	m_move = 0;
 }
 
 DxSysClass::DxSysClass(const DxSysClass& other) {
@@ -20,8 +21,9 @@ bool DxSysClass::Init() {
 	int screenWidth = 0, 
 		screenHeight = 0;
 	bool isSuccess;
-
+	//windows初始化
 	WindowsInit(screenWidth, screenHeight);
+	//输入模块
 	m_input = new DxInputClass();
 	if (!m_input) {
 		return false;
@@ -32,43 +34,43 @@ bool DxSysClass::Init() {
 		MessageBox(m_hwnd, L"Could not initialize the input object.", L"Error", MB_OK);
 		return false;
 	}
-	
+	//渲染模块
 	m_graph = new DxGraphicsClass();
 	if (!m_graph) {
 		return false;
 	}
 	isSuccess = m_graph->Init(screenWidth, screenHeight, m_hwnd);
 
-	// Create the fps object.
+	//fps计算模块
 	m_fps = new DxFpsClass();
 	if (!m_fps){
 		return false;
 	}
-
-	// Initialize the fps object.
 	m_fps->Init();
 
-	// Create the cpu object.
+	//cpu使用率模块
 	m_cpuUsage = new DxCpuClass();
 	if (!m_cpuUsage){
 		return false;
 	}
-
-	// Initialize the cpu object.
 	m_cpuUsage->Init();
 
-	// Create the timer object.
+	//定时器模块
 	m_Timer = new DxTimerClass();
 	if (!m_Timer){
 		return false;
 	}
-
-	// Initialize the timer object.
 	isSuccess = m_Timer->Init();
 	if (!isSuccess){
 		MessageBox(m_hwnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
 		return false;
 	}
+
+	m_move = new DxMoveClass();
+	if (!m_move) {
+		return false;
+	}
+
 
 	return true;
 }
@@ -94,9 +96,15 @@ void DxSysClass::ShutDown() {
 		delete m_fps;
 		m_fps = 0;
 	}
-	if (m_Timer) {
-		delete m_Timer;
-		m_Timer = 0;
+
+	//if (m_Timer) {
+	//	delete m_Timer;
+	//	m_Timer = 0;
+	//}
+
+	if (m_move) {
+		delete m_move;
+		m_move = 0;
 	}
 
 	WindowsShutDown();
@@ -125,7 +133,7 @@ void DxSysClass::Run() {
 				done = true;
 			}
 		}
-		if (m_input->IsEscapePressed())
+		if (m_input->IsKeyPressed(DIK_ESCAPE))
 			done = true;
 
 	}
@@ -135,19 +143,26 @@ bool DxSysClass::Frame() {
 	bool isSuccess;
 	int mouseX, mouseY;
 
+	//计算fps
 	m_fps->Frame();
 	m_Timer->Frame();
+	//计算cpu使用
 	m_cpuUsage->Frame();
 
-	// Do the input frame processing.
+	//输入获取
 	isSuccess = m_input->Frame();
 	if (!isSuccess){
 		return false;
 	}
-	// Get the location of the mouse from the input object,
+	//获取鼠标位置
 	m_input->GetMouseLocation(mouseX, mouseY);
-
-	isSuccess = m_graph->Frame(mouseX, mouseY, m_fps->GetFps(), m_cpuUsage->GetCpuPercentage());
+	//按键响应
+	m_move->SetFrameTime(m_Timer->GetTime());
+	m_move->MoveForward(m_input->IsKeyPressed(DIK_W));
+	m_move->MoveBackward(m_input->IsKeyPressed(DIK_S));
+	m_move->TurnLeft(m_input->IsKeyPressed(DIK_A));
+	m_move->TurnRight(m_input->IsKeyPressed(DIK_D));
+	isSuccess = m_graph->Frame(mouseX, mouseY, m_fps->GetFps(), m_cpuUsage->GetCpuPercentage(), m_move);
 	if (!isSuccess)
 		return false;
 

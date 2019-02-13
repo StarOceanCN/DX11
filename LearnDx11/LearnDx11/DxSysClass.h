@@ -10,6 +10,7 @@
 #include"DxTimerClass.h"
 #include"DxCpuClass.h";
 #include"DxFpsClass.h"
+#include"DxMoveClass.h"
 
 class DxSysClass
 {
@@ -53,6 +54,7 @@ private:
 	DxFpsClass* m_fps;
 	DxCpuClass* m_cpuUsage;
 	DxTimerClass* m_Timer;
+	DxMoveClass* m_move;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

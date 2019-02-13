@@ -163,6 +163,7 @@
     <ClInclude Include="DxInputClass.h" />
     <ClInclude Include="DxLightClass.h" />
     <ClInclude Include="DxModelClass.h" />
+    <ClInclude Include="DxMoveClass.h" />
     <ClInclude Include="DxShaderClass.h" />
     <ClInclude Include="DxSysClass.h" />
     <ClInclude Include="DxTextClass.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="DxInputClass.cpp" />
     <ClCompile Include="DxLightClass.cpp" />
     <ClCompile Include="DxModelClass.cpp" />
+    <ClCompile Include="DxMoveClass.cpp" />
     <ClCompile Include="DxShaderClass.cpp" />
     <ClCompile Include="DxSysClass.cpp" />
     <ClCompile Include="DxTextClass.cpp" />

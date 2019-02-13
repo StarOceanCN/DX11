@@ -165,8 +165,7 @@ bool DxInputClass::ReadMouse(){
 	return true;
 }
 //更新鼠标位置
-void DxInputClass::ProcessInput()
-{
+void DxInputClass::ProcessInput(){
 	// Update the location of the mouse cursor based on the change of the mouse location during the frame.
 	m_mouseX += m_mouseState.lX;
 	m_mouseY += m_mouseState.lY;
@@ -181,16 +180,17 @@ void DxInputClass::ProcessInput()
 	return;
 }
 //esc键位response函数
-bool DxInputClass::IsEscapePressed()
+bool DxInputClass::IsKeyPressed(unsigned char key)
 {
 	// Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
-	if (m_keyboardState[DIK_ESCAPE] & 0x80)
+	if (m_keyboardState[key] & 0x80)
 	{
 		return true;
 	}
 
 	return false;
 }
+
 void DxInputClass::GetMouseLocation(int& mouseX, int& mouseY)
 {
 	mouseX = m_mouseX;
