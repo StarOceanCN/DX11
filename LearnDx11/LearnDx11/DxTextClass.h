@@ -34,6 +34,7 @@ public:
 	bool SetMousePosition(int x, int y, ID3D11DeviceContext* deviceContext);
 	bool SetFps(int fps, ID3D11DeviceContext* deviceContext);
 	bool SetCpu(int cpuUsage, ID3D11DeviceContext* deviceContext);
+	void GetBaseViewMatrix(D3DXMATRIX& viewMatrix);
 
 private:
 	bool InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device);

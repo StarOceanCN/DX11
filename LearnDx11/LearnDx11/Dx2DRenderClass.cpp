@@ -1,5 +1,6 @@
 #include"Dx2DRenderClass.h"
 
+
 Dx2DRenderClass::Dx2DRenderClass(){
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;

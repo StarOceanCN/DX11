@@ -531,5 +531,8 @@ bool DxTextClass::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
 	return true;
 }
 
+void DxTextClass::GetBaseViewMatrix(D3DXMATRIX& viewMatrix) {
+	viewMatrix = m_baseViewMatrix;
+}
 
 

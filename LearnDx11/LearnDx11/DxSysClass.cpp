@@ -159,10 +159,19 @@ bool DxSysClass::Frame() {
 	m_input->GetMouseLocation(mouseX, mouseY);
 	//按键响应
 	m_move->SetFrameTime(m_Timer->GetTime());
-	m_move->MoveForward(m_input->IsKeyPressed(DIK_W));
-	m_move->MoveBackward(m_input->IsKeyPressed(DIK_S));
+	bool isPressW, isPressS;
+
+	isPressW = m_input->IsKeyPressed(DIK_W);
+	isPressS = m_input->IsKeyPressed(DIK_S);
+	m_move->MoveForward(isPressW);
+	m_move->MoveBackward(isPressS);
 	m_move->TurnLeft(m_input->IsKeyPressed(DIK_A));
 	m_move->TurnRight(m_input->IsKeyPressed(DIK_D));
+	//如果向前就加1， 向后减1，两个按钮同时按就是0
+	int vehicleDir = 0;
+	vehicleDir += (isPressW ? 1 : 0);
+	vehicleDir += (isPressS ? -1 : 0);
+
 	//第一人称/第三人称
 	if (m_input->IsKeyPressed(DIK_1)) {
 		isFirst = true;
@@ -171,7 +180,7 @@ bool DxSysClass::Frame() {
 		isFirst = false;
 	}
 
-	isSuccess = m_graph->Frame(mouseX, mouseY, m_fps->GetFps(), m_cpuUsage->GetCpuPercentage(), m_move, isFirst);
+	isSuccess = m_graph->Frame(mouseX, mouseY, m_fps->GetFps(), m_cpuUsage->GetCpuPercentage(), m_move, isFirst, vehicleDir);
 	if (!isSuccess)
 		return false;
 

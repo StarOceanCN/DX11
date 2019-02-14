@@ -11,8 +11,9 @@ DxGraphicsClass::DxGraphicsClass() {
 	m_bitmap = 0;
 	m_floor = 0;
 	m_text = 0;
-	m_vehicle_top = 0;
-	m_vehicle_bottom = 0;
+	m_vehicleTop = 0;
+	m_vehicleBottom = 0;
+	m_vehicleTire = 0;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
@@ -50,25 +51,37 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
 	}
+	//上部
+	m_vehicleTop = new DxModelClass();
+	if (!m_vehicleTop) {
+		return false;
+	}
+	isSuccess = m_vehicleTop->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/fir.jpg");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
+		return false;
+	}
+	//底盘
+	m_vehicleBottom = new DxModelClass();
+	if (!m_vehicleBottom) {
+		return false;
+	}
+	isSuccess = m_vehicleBottom->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/sec.jpg");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
+		return false;
+	}
+	//轮子
+	m_vehicleTire = new DxModelClass();
+	if (!m_vehicleTire) {
+		return false;
+	}
+	isSuccess = m_vehicleTire->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Tire.txt", L"../LearnDx11/Texture/seafloor.gif");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
+		return false;
+	}
 
-	m_vehicle_top = new DxModelClass();
-	if (!m_vehicle_top) {
-		return false;
-	}
-	isSuccess = m_vehicle_top->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/fir.jpg");
-	if (!isSuccess) {
-		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
-		return false;
-	}
-	m_vehicle_bottom = new DxModelClass();
-	if (!m_vehicle_bottom) {
-		return false;
-	}
-	isSuccess = m_vehicle_bottom->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Cube.txt", L"../LearnDx11/Texture/sec.jpg");
-	if (!isSuccess) {
-		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
-		return false;
-	}
 	m_modelShader = new DxShaderClass();
 	isSuccess = m_modelShader->Init(m_dx3dcls->GetDevice(), hwnd, L"../LearnDx11/Light.vs", L"../LearnDx11/Light.ps", "LightVertexShader", "LightPixelShader");
 	if (!isSuccess) {
@@ -191,15 +204,20 @@ void DxGraphicsClass::ShutDown() {
 		delete m_dx3dcls;
 		m_dx3dcls = 0;
 	}
-	if (m_vehicle_bottom) {
-		m_vehicle_bottom->ShutDown();
-		delete m_vehicle_bottom;
-		m_vehicle_bottom = 0;
+	if (m_vehicleBottom) {
+		m_vehicleBottom->ShutDown();
+		delete m_vehicleBottom;
+		m_vehicleBottom = 0;
 	}
-	if (m_vehicle_top) {
-		m_vehicle_top->ShutDown();
-		delete m_vehicle_top;
-		m_vehicle_top = 0;
+	if (m_vehicleTop) {
+		m_vehicleTop->ShutDown();
+		delete m_vehicleTop;
+		m_vehicleTop = 0;
+	}
+	if (m_vehicleTire) {
+		m_vehicleTire->ShutDown();
+		delete m_vehicleTire;
+		m_vehicleTire = 0;
 	}
 
 	if (m_text) {
@@ -210,21 +228,21 @@ void DxGraphicsClass::ShutDown() {
 
 }
 
-bool DxGraphicsClass::Frame(int mouseX, int mouseY, int fps, int cpuUsage, DxMoveClass* movePosition, bool isFirst) {
+bool DxGraphicsClass::Frame(int mouseX, int mouseY, int fps, int cpuUsage, DxMoveClass* movePosition, bool isFirst, int vehicleDir) {
 
+	//左上角文字设置
 	m_text->SetMousePosition(mouseX, mouseY, m_dx3dcls->GetDeviceContext());
 	m_text->SetCpu(cpuUsage, m_dx3dcls->GetDeviceContext());
 	m_text->SetFps(fps, m_dx3dcls->GetDeviceContext());
 
-
-
-	bool isSuccess = Render(movePosition, isFirst);
+	bool isSuccess = Render(movePosition, isFirst, vehicleDir);
 	if (!isSuccess)
 		return false;
 	return true;
 }
 
-bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
+//movePosition 是经过输入后计算的载具位置，isFIrst是是否是第一人称，vehicleDir是载具行走方向，1为向前，-1为后，0为不动，用于计算轮胎旋转
+bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicleDir) {
 
 	D3DXMATRIX viewMatrix, worldMatrix, projectionMatrix;
 	D3DXMATRIX orthoMatrix;
@@ -237,7 +255,7 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
 	float cameraOffsetY;
 	float cameraOffsetZ;
 
-	cameraOffsetY = isFirst ? 1.0f : 0.1f;
+	cameraOffsetY = isFirst ? 1.0f : 6.0f;
 	cameraOffsetZ = isFirst ? 1.0f : -20.0f;
 
 	movePosition->GetPosition(posX, posY, posZ);
@@ -284,8 +302,10 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
 	if (!isSuccess){
 		return false;
 	}
+	D3DXMATRIX UIRenderView;
+	m_text->GetBaseViewMatrix(UIRenderView);
 	//UI渲染
-	isSuccess = m_2dShader->Render(m_dx3dcls->GetDeviceContext(), m_bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_bitmap->GetTexture(), NULL);
+	isSuccess = m_2dShader->Render(m_dx3dcls->GetDeviceContext(), m_bitmap->GetIndexCount(), worldMatrix, UIRenderView, orthoMatrix, m_bitmap->GetTexture(), NULL);
 	if (!isSuccess){
 		return false;
 	}
@@ -309,9 +329,7 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
 	//缩放地板
 	D3DXMatrixScaling(&transformMatrix, 150.0f, 1.0f, 150.0f);
 	floorWorldMatrix *= transformMatrix;
-	//平移
-	//D3DXMatrixTranslation(&transformMatrix, 0.0f, 0.0f, 0.0f);
-	//floorWorldMatrix *= transformMatrix;
+
 	//渲染
 	m_floor->Render(m_dx3dcls->GetDeviceContext());
 	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_floor->GetIndexCount(),
@@ -323,7 +341,6 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
 	//车子渲染相关
 	D3DXMATRIX vehicleWorldMatrix;
 	//初始位置被DxMoveClass决定
-
 	vehicleWorldMatrix = worldMatrix;
 
 	//缩放
@@ -336,9 +353,9 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
 	D3DXMatrixTranslation(&transformMatrix, posX, posY + 2.0f, posZ);
 	vehicleWorldMatrix *= transformMatrix;
 	//渲染
-	m_vehicle_top->Render(m_dx3dcls->GetDeviceContext());
-	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicle_top->GetIndexCount(),
-		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicle_top->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	m_vehicleTop->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTop->GetIndexCount(),
+		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicleTop->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
 	
 	vehicleWorldMatrix = worldMatrix;
 	//缩放
@@ -350,9 +367,77 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst) {
 	//平移
 	D3DXMatrixTranslation(&transformMatrix, posX, posY + 3.5f, posZ);
 	vehicleWorldMatrix *= transformMatrix;
-	m_vehicle_bottom->Render(m_dx3dcls->GetDeviceContext());
-	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicle_bottom->GetIndexCount(),
-		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicle_bottom->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	m_vehicleBottom->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleBottom->GetIndexCount(),
+		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicleBottom->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
+	D3DXMATRIX t1, t2, t3, t4;
+	vehicleWorldMatrix = worldMatrix;
+	//缩放
+	D3DXMatrixScaling(&transformMatrix, 2.0f, 1.0f, 2.0f);
+	vehicleWorldMatrix *= transformMatrix;
+	//旋转
+	D3DXMatrixRotationZ(&transformMatrix, D3DX_PI / 2);
+	vehicleWorldMatrix *= transformMatrix;
+	static int ra = 0;
+	ra += (5*vehicleDir);
+	ra %= 360;
+	D3DXMatrixRotationX(&transformMatrix, ra * 0.0174532925f);
+	vehicleWorldMatrix *= transformMatrix;
+
+	D3DXMatrixTranslation(&t1, 2.0f, 1.0f, 2.0f);
+	D3DXMatrixTranslation(&t2, -2.0f, 1.0f, 2.0f);
+	D3DXMatrixTranslation(&t3, 2.0f, 1.0f, -2.0f);
+	D3DXMatrixTranslation(&t4, -2.0f, 1.0f, -2.0f);
+
+	t1 = vehicleWorldMatrix * t1;
+	D3DXMatrixRotationY(&transformMatrix, rotY*0.0174532925f);
+	t1 *= transformMatrix;
+	//平移
+	D3DXMatrixTranslation(&transformMatrix, posX, posY, posZ);
+	t1 *= transformMatrix;
+
+	//渲染轮子1
+	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
+		t1, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
+	t2 = vehicleWorldMatrix * t2;
+	D3DXMatrixRotationY(&transformMatrix, rotY*0.0174532925f);
+	t2 *= transformMatrix;
+	//平移
+	D3DXMatrixTranslation(&transformMatrix, posX, posY, posZ);
+	t2 *= transformMatrix;
+
+	//渲染轮子2
+	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
+		t2, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
+	t3 = vehicleWorldMatrix * t3;
+	D3DXMatrixRotationY(&transformMatrix, rotY*0.0174532925f);
+	t3 *= transformMatrix;
+	//平移
+	D3DXMatrixTranslation(&transformMatrix, posX, posY, posZ);
+	t3 *= transformMatrix;
+
+	//渲染轮子3
+	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
+		t3, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
+	t4 = vehicleWorldMatrix * t4;
+	D3DXMatrixRotationY(&transformMatrix, rotY*0.0174532925f);
+	t4 *= transformMatrix;
+	//平移
+	D3DXMatrixTranslation(&transformMatrix, posX, posY, posZ);
+	t4 *= transformMatrix;
+
+	//渲染轮子4
+	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
+		t4, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
 
 	if (!isSuccess)
 		return false;
