@@ -311,6 +311,7 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 
 	//第一人称摄像头旋转
 	if (isFirst) { m_camera->SetRotation(rotX , rotY, rotZ); }
+	else { m_camera->SetRotation(0.0f, 0.0f, 0.0f); }
 
 	m_camera->Render();
 	//获取四个个矩阵
@@ -344,6 +345,7 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 	if (!isSuccess){
 		return false;
 	}
+	//获取一下之前存入到文本渲染中的摄像机初始view矩阵，需要重写修改结构
 	D3DXMATRIX UIRenderView;
 	m_text->GetBaseViewMatrix(UIRenderView);
 	//UI渲染
@@ -421,6 +423,7 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 	//旋转
 	D3DXMatrixRotationZ(&transformMatrix, D3DX_PI / 2);
 	vehicleWorldMatrix *= transformMatrix;
+	//车轮旋转变量，vehicleDir是1、-1、0；
 	static int ra = 0;
 	ra += (5*vehicleDir);
 	ra %= 360;
@@ -479,6 +482,40 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
 	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
 		t4, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	
+	//装饰火炮
+	D3DXMATRIX t5;
+	vehicleWorldMatrix = worldMatrix;
+	D3DXMatrixScaling(&t5, 1.0f, 5.0f, 1.0f);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixRotationX(&t5, -D3DX_PI / 2);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixTranslation(&t5, 0.0f, 4.0f, 4.0f);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixRotationY(&t5, rotY*0.0174532925f);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixTranslation(&t5, posX, posY, posZ);
+	vehicleWorldMatrix *= t5;
+	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
+		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
+	//装饰烟囱
+	vehicleWorldMatrix = worldMatrix;
+	D3DXMatrixScaling(&t5, 0.5f, 3.0f, 0.5f);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixRotationX(&t5, D3DX_PI);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixTranslation(&t5, 1.0f, 4.0f, -1.0f);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixRotationY(&t5, rotY*0.0174532925f);
+	vehicleWorldMatrix *= t5;
+	D3DXMatrixTranslation(&t5, posX, posY, posZ);
+	vehicleWorldMatrix *= t5;
+	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
+	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
+		vehicleWorldMatrix, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+
 	//车子渲染结束
 
 	D3DXMATRIX treeWorldMatrix;

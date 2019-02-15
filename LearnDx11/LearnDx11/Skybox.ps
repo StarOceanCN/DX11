@@ -16,7 +16,7 @@ cbuffer LightBuffer{
 
  float4 SkyboxPixelShader(PixelInputType input):SV_TARGET{
      float4 textureColor;
-
+     //此处normal实际存储的是position
      textureColor = shaderTexture.Sample(sampleType, input.normal);
 
      return textureColor;
