@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+//º∆À„fps
 class DxFpsClass
 {
 public:

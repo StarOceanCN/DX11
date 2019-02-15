@@ -2,7 +2,7 @@
 #ifndef DXCPUCLASS_H
 #define DXCPUCLASS_H
 
-//获取cpu信息的库
+//获取cpu使用率信息的模块
 #pragma comment(lib, "pdh.lib")
 #include <pdh.h>
 

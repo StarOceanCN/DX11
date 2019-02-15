@@ -14,18 +14,18 @@ DxModelClass::~DxModelClass() {}
 
 bool DxModelClass::Init(ID3D11Device* device, const char* modelFileName, const WCHAR* textureFileName) {
 	bool isSuccess;
-
+	//载入模型
 	isSuccess = LoadModel(modelFileName);
 	if (!isSuccess)
 	{
 		return false;
 	}
-
+	//读取纹理
 	isSuccess = LoadTexture(device, textureFileName);
 	if (!isSuccess) {
 		return false;
 	}
-
+	//缓冲区初始化
 	isSuccess = BufferInit(device);
 	if (!isSuccess)
 		return false;
@@ -196,7 +196,7 @@ void DxModelClass::BufferRender(ID3D11DeviceContext* deviceContext) {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 }
-
+//自定义顶点格式，包括顶点数和绘制顶点顺序
 bool DxModelClass::LoadModel(const char* modelFileName)
 {
 	ifstream fin;

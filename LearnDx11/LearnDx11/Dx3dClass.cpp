@@ -148,11 +148,9 @@ bool Dx3dClass::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 	*/
 	//set to a single back buffer
 	swapChainDesc.BufferCount = 1;
-
 	//set the width and height of the back buffer.
 	swapChainDesc.BufferDesc.Width = screenWidth;
 	swapChainDesc.BufferDesc.Height = screenHeight;
-
 	//set regular 32-bit surface for the back buffer
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
@@ -166,13 +164,10 @@ bool Dx3dClass::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	}
-
 	//set the usage of the back buffer
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-
 	//set the handle for the window to render to
 	swapChainDesc.OutputWindow = hwnd;
-
 	//trun multisampling off.
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
@@ -180,12 +175,10 @@ bool Dx3dClass::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 	//set to full screen of windowed mode
 	if (fullScreen) {
 		swapChainDesc.Windowed = false;
-
 	}
 	else {
 		swapChainDesc.Windowed = true;
 	}
-
 	//set the scan line ordering and scaling to unspecified
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -483,6 +476,7 @@ void Dx3dClass::ShutDown() {
 	}
 
 }
+//开始渲染，先清空缓冲区
 void Dx3dClass::BeginScene(float r, float g, float b, float a) {
 	float color[4];
 
@@ -496,7 +490,7 @@ void Dx3dClass::BeginScene(float r, float g, float b, float a) {
 	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 }
-
+//结束当前一帧渲染，并交换缓冲区
 void Dx3dClass::EndScene() {
 	if (m_vsync_enabled) {
 		m_swapChain->Present(1, 0);
@@ -505,11 +499,11 @@ void Dx3dClass::EndScene() {
 		m_swapChain->Present(0, 0);
 	}
 }
-
+//获取设备
 ID3D11Device* Dx3dClass::GetDevice() {
 	return m_device;
 }
-
+//获取渲染上下文
 ID3D11DeviceContext* Dx3dClass::GetDeviceContext() {
 	return m_deviceContext;
 }
@@ -523,20 +517,20 @@ void Dx3dClass::GetWorldMatrix(D3DXMATRIX& worldMatrix) {
 void Dx3dClass::GetOrthoMatrix(D3DXMATRIX& orthoMatrix) {
 	orthoMatrix = m_orthoMatrix;
 }
+//显卡数据
 void Dx3dClass::GetVideoCardInfo(char* cardName, int& memory) {
 	strcpy_s(cardName, 128, m_videoCardDescription);
 	memory = m_videoCardMemory;
 }
-
+//开启z缓冲
 void Dx3dClass::ZBufferTurnOn(){
 	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 }
-
-
+//关闭z缓冲， 将渲染到像素最前方
 void Dx3dClass::ZBufferTurnOff(){
 	m_deviceContext->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
 }
-
+//开启提出
 void Dx3dClass::CullingTurnOn()
 {
 	// Set the culling rasterizer state.
@@ -544,8 +538,7 @@ void Dx3dClass::CullingTurnOn()
 
 	return;
 }
-
-
+//关闭剔除
 void Dx3dClass::CullingTurnOff()
 {
 	// Set the no back face culling rasterizer state.
@@ -553,7 +546,7 @@ void Dx3dClass::CullingTurnOff()
 
 	return;
 }
-
+//开启混合
 void Dx3dClass::AlphaBlendingTurnOn()
 {
 	float blendFactor[4];
@@ -570,7 +563,7 @@ void Dx3dClass::AlphaBlendingTurnOn()
 	m_deviceContext->OMSetBlendState(m_alphaEnableBlendingState, blendFactor, 0xffffffff);
 
 }
-
+//关闭混合
 void Dx3dClass::AlphaBlendingTurnOff()
 {
 	float blendFactor[4];

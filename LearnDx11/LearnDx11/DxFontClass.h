@@ -7,7 +7,9 @@
 using namespace std;
 
 #include"DxTextureClass.h"
-
+/*
+* 字形设置模块，对文件中字形的读取，ascii码解析
+*/
 class DxFontClass
 {
 public:
@@ -18,7 +20,7 @@ public:
 	bool Init(ID3D11Device* device, const char* fontFileName, const WCHAR* textureFileName);
 	void ShutDown();
 	ID3D11ShaderResourceView* GetTexture();
-	void BuildVertexArray(void*, char*, float, float);
+	void BuildVertexArray(void* vertices, char* sentence, float drawX, float drawY);
 
 private:
 	struct FontType {

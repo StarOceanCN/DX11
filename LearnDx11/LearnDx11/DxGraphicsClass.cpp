@@ -14,17 +14,22 @@ DxGraphicsClass::DxGraphicsClass() {
 	m_vehicleTop = 0;
 	m_vehicleBottom = 0;
 	m_vehicleTire = 0;
+	m_treeBottom = 0;
+	m_treeTop = 0;
+	m_treePositionX = 0;
+	m_treePositionZ = 0;
+	m_treeNum = 30;
 }
 DxGraphicsClass::DxGraphicsClass(const DxGraphicsClass& other) {}
 DxGraphicsClass::~DxGraphicsClass() {}
 
+//模型类和着色器类的初始化
 bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
-
+	//3d相关初始化
 	m_dx3dcls = new Dx3dClass();
 	if (!m_dx3dcls) {
 		return false;
 	}
-
 	bool isSuccess = m_dx3dcls->Init(screenWidth,screenHeight,true,hwnd,FULL_SCREEN, SCREEN_DEPTH,SCREEN_NEAR);
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant init Direct3d", L"Error", MB_OK);
@@ -40,8 +45,34 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	D3DXMATRIX baseViewMatrix;
 	m_camera->GetViewMatrix(baseViewMatrix);
 
+	//树模型初始化
+	m_treeBottom = new DxModelClass();
+	if (!m_treeBottom) {
+		return false;
+	}
+	isSuccess = m_treeBottom->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Tire.txt", L"../LearnDx11/Texture/rock.jpg");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
+		return false;
+	}
+	m_treeTop = new DxModelClass();
+	if (!m_treeTop) {
+		return false;
+	}
+	isSuccess = m_treeTop->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Skybox.txt", L"../LearnDx11/Texture/TreeTop.jpg");
+	if (!isSuccess) {
+		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
+		return false;
+	}
+	//树位置相关初始化
+	m_treePositionX = new int[m_treeNum];
+	m_treePositionZ = new int[m_treeNum];
+	for (int i = 0; i < m_treeNum; i++) {
+		m_treePositionX[i] = rand() % 300 - 150;
+		m_treePositionZ[i] = rand() % 300 - 150;
+	}
 
-	//模型初始化
+	//车模型初始化
 	m_floor = new DxModelClass();
 	if (!m_floor) {
 		return false;
@@ -51,7 +82,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-	//上部
+	//车上部
 	m_vehicleTop = new DxModelClass();
 	if (!m_vehicleTop) {
 		return false;
@@ -61,7 +92,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-	//底盘
+	//车底盘
 	m_vehicleBottom = new DxModelClass();
 	if (!m_vehicleBottom) {
 		return false;
@@ -76,7 +107,7 @@ bool DxGraphicsClass::Init(int screenWidth, int screenHeight, HWND hwnd) {
 	if (!m_vehicleTire) {
 		return false;
 	}
-	isSuccess = m_vehicleTire->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Tire.txt", L"../LearnDx11/Texture/seafloor.gif");
+	isSuccess = m_vehicleTire->Init(m_dx3dcls->GetDevice(), "../LearnDx11/Model/Tire.txt", L"../LearnDx11/Texture/Tire.png");
 	if (!isSuccess) {
 		MessageBox(hwnd, L"Cant initialize the model object", L"Error", MB_OK);
 		return false;
@@ -171,18 +202,15 @@ void DxGraphicsClass::ShutDown() {
 		delete m_2dShader;
 		m_2dShader = 0;
 	}
-
 	if (m_bitmap){
 		m_bitmap->Shutdown();
 		delete m_bitmap;
 		m_bitmap = 0;
 	}
-
 	if (m_light) {
 		delete m_light;
 		m_light = 0;
 	}
-
 	if (m_skybox) {
 		m_skybox->ShutDown();
 		delete m_skybox;
@@ -225,6 +253,17 @@ void DxGraphicsClass::ShutDown() {
 		delete m_text;
 		m_text = 0;
 	}
+	if (m_treeBottom) {
+		m_treeBottom->ShutDown();
+		delete m_treeBottom;
+		m_treeBottom = 0;
+	}
+	if (m_treeTop) {
+		m_treeTop->ShutDown();
+		delete m_treeTop;
+		m_treeTop = 0;
+	}
+
 
 }
 
@@ -255,8 +294,9 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 	float cameraOffsetY;
 	float cameraOffsetZ;
 
-	cameraOffsetY = isFirst ? 1.0f : 6.0f;
-	cameraOffsetZ = isFirst ? 1.0f : -20.0f;
+	//调整第一人称偏移坐标
+	cameraOffsetY = isFirst ? 6.0f : 6.0f;
+	cameraOffsetZ = isFirst ? 2.0f : -20.0f;
 
 	movePosition->GetPosition(posX, posY, posZ);
 	movePosition->GetRotation(rotX, rotY, rotZ);
@@ -266,9 +306,11 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 	m_dx3dcls->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	m_camera->SetPosition(posX, posY + cameraOffsetY, posZ + cameraOffsetZ);
+	//m_camera->SetPosition(0.0f, 300.0f, 0.0f);
+	//m_camera->SetRotation(30.0f, 0.0f, 0.0f);
 
 	//第一人称摄像头旋转
-	if (isFirst) { m_camera->SetRotation(rotX, rotY, rotZ); }
+	if (isFirst) { m_camera->SetRotation(rotX , rotY, rotZ); }
 
 	m_camera->Render();
 	//获取四个个矩阵
@@ -384,7 +426,7 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 	ra %= 360;
 	D3DXMatrixRotationX(&transformMatrix, ra * 0.0174532925f);
 	vehicleWorldMatrix *= transformMatrix;
-
+	//四个轮子位置
 	D3DXMatrixTranslation(&t1, 2.0f, 1.0f, 2.0f);
 	D3DXMatrixTranslation(&t2, -2.0f, 1.0f, 2.0f);
 	D3DXMatrixTranslation(&t3, 2.0f, 1.0f, -2.0f);
@@ -437,11 +479,40 @@ bool DxGraphicsClass::Render(DxMoveClass* movePosition, bool isFirst, int vehicl
 	m_vehicleTire->Render(m_dx3dcls->GetDeviceContext());
 	isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_vehicleTire->GetIndexCount(),
 		t4, viewMatrix, projectionMatrix, m_vehicleTire->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+	//车子渲染结束
 
-
-	if (!isSuccess)
-		return false;
-
+	D3DXMATRIX treeWorldMatrix;
+	//渲染树
+	for (int i = 0; i < m_treeNum; i++) {
+		D3DXMATRIX temp;
+		//树干
+		treeWorldMatrix = worldMatrix;
+		//缩放
+		D3DXMatrixScaling(&temp, 2.0f, 7.0f, 2.0f);
+		treeWorldMatrix *= temp;
+		//旋转
+		D3DXMatrixRotationZ(&temp, D3DX_PI);
+		treeWorldMatrix *= temp;
+		//平移
+		D3DXMatrixTranslation(&temp, m_treePositionX[i], 4.0f,m_treePositionZ[i]);
+		treeWorldMatrix *= temp;
+		m_treeBottom->Render(m_dx3dcls->GetDeviceContext());
+		isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_treeBottom->GetIndexCount(),
+			treeWorldMatrix, viewMatrix, projectionMatrix, m_treeBottom->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+		//树顶
+		treeWorldMatrix = worldMatrix;
+		//缩放
+		D3DXMatrixScaling(&temp, 2.0f, 2.0f, 2.0f);
+		treeWorldMatrix *= temp;
+		//平移
+		D3DXMatrixTranslation(&temp, m_treePositionX[i], 10.0f, m_treePositionZ[i]);
+		treeWorldMatrix *= temp;
+		m_treeTop->Render(m_dx3dcls->GetDeviceContext());
+		isSuccess = m_modelShader->Render(m_dx3dcls->GetDeviceContext(), m_treeTop->GetIndexCount(),
+			treeWorldMatrix, viewMatrix, projectionMatrix, m_treeTop->GetTexture(), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor());
+		if (!isSuccess)
+			return false;
+	}
 	m_dx3dcls->EndScene();
 
 	return true;

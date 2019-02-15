@@ -2,7 +2,9 @@
 #define DXCAMERACLASS_H
 
 #include<D3DX10math.h>
-
+/*
+* 摄像机类，可获取设置好的view矩阵
+*/
 const float TORADIANS = 0.0174532925f;
 
 class DxCameraClass

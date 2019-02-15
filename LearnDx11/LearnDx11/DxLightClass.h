@@ -2,7 +2,7 @@
 #define DXLIGHTCLASS_H
 
 #include<D3DX10math.h>
-
+//单独的光的类，主要是描述一个光的相关属性
 class DxLightClass
 {
 public:

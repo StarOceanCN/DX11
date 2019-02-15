@@ -11,7 +11,10 @@
 #include <D3D11.h>
 
 #include <D3DX10math.h>
-
+/*
+* 本模块主要是对Dx11 3d的相关设置，提供改变渲染状态的函数
+* 生成3d空间相关的矩阵
+*/
 
 const float PI = 3.141592654f;
 

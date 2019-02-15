@@ -8,7 +8,7 @@
 #include <fstream>
 using namespace std;
 
-
+//3d模型载入模块，顶点数据为坐标、UV、法线。
 class DxModelClass
 {
 public:

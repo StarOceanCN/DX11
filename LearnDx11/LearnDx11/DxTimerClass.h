@@ -2,6 +2,7 @@
 #define DXTIMERCLASS_H
 
 #include <windows.h>
+//timer¼ÆËãÄ£¿é
 class DxTimerClass
 {
 public:

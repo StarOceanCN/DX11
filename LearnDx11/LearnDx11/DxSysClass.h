@@ -9,8 +9,14 @@
 #include"DxGraphicsClass.h"
 #include"DxTimerClass.h"
 #include"DxCpuClass.h";
-#include"DxFpsClass.h"
 #include"DxMoveClass.h"
+#include"DxFpsClass.h"
+
+/*
+* 本类主要是对windows相关调用初始化
+* 调用图形渲染类进行渲染
+* 设置输入类并将输入的结果传递到渲染模块中
+*/
 
 class DxSysClass
 {
@@ -23,7 +29,7 @@ public:
 	void ShutDown();
 	void Run();
 
-	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
+	LRESULT CALLBACK MessageHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	/*
 	LRESULT//表示会返回多种long型值
 	CALLBACK//只是为了识别这是一个回调函数的空宏

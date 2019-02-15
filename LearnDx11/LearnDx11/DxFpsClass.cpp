@@ -1,6 +1,5 @@
 #include "DxFpsClass.h"
 
-
 DxFpsClass::DxFpsClass(){
 }
 DxFpsClass::DxFpsClass(const DxFpsClass& other){

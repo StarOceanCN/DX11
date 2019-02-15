@@ -3,7 +3,7 @@
 
 #include<D3D11.h>
 #include<D3DX11tex.h>
-
+//纹理读入模块，主要使用dx函数读入纹理
 class DxTextureClass
 {
 public:

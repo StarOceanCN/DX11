@@ -10,7 +10,12 @@
 #include"DxTextClass.h"
 #include"DxMoveClass.h"
 
+/*
+* 本模块主要是渲染调用模型和着色器模块进行实际场景的渲染
+* 主要包括渲染需要的初始化工作，调整渲染屏幕是否为全屏
+*/
 
+//控制渲染全屏的变量
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = false;
 const float SCREEN_DEPTH = 1000.0f;
@@ -33,11 +38,16 @@ private:
 	Dx3dClass* m_dx3dcls;
 	DxCameraClass* m_camera;
 	DxModelClass* m_skybox, *m_floor, *m_vehicleTop, *m_vehicleBottom, *m_vehicleTire;
+	DxModelClass *m_treeTop, *m_treeBottom;
 	DxShaderClass* m_modelShader, *m_skyboxShader;
 	DxTextureShaderClass *m_2dShader;
 	DxLightClass* m_light;
 	Dx2DRenderClass* m_bitmap;
 	DxTextClass* m_text;
+	
+	int *m_treePositionX;
+	int *m_treePositionZ;
+	int m_treeNum;
 };
 
 

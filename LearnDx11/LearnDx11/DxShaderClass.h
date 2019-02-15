@@ -6,7 +6,8 @@
 #include <D3DX11async.h>
 #include <fstream>
 using namespace std;
-
+//shader读入模块，包括带有光线属性的shader读入和普通的纹理shader读入
+//重写继承化
 class DxShaderClass
 {
 public:

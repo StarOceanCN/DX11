@@ -7,6 +7,7 @@
 #pragma comment(lib, "dxguid.lib")
 #include<dinput.h>
 
+//dx11 输入模块，捕获鼠标在屏幕上位置和键盘按键事件
 class DxInputClass
 {
 public:

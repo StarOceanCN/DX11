@@ -22,7 +22,7 @@ DxTextClass::~DxTextClass()
 {
 }
 
-
+//初始化工作， 字形贴图的读入和shader的读入
 bool DxTextClass::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, HWND hwnd, int screenWidth, int screenHeight,
 	D3DXMATRIX baseViewMatrix)
 {

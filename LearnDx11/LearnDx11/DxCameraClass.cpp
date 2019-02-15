@@ -51,6 +51,7 @@ void DxCameraClass::Render() {
 	lookAt.y = 0.0f;
 	lookAt.z = 1.0f;
 
+	//½Ç¶È×ª»¡¶È
 	pitch = m_rotationX * TORADIANS;
 	yaw = m_rotationY * TORADIANS;
 	roll = m_rotationZ * TORADIANS;

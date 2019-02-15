@@ -4,7 +4,7 @@
 
 #include"DxFontClass.h"
 #include"DxShaderClass.h"
-
+//文本渲染，主要是对文本贴图的屏幕2d矩形的设置，和2drenderclass有重合
 class DxTextClass
 {
 private:
